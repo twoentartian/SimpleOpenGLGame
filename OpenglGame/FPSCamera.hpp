@@ -5,18 +5,18 @@
 #include <glm\ext.hpp>
 #include <glm\gtc\type_ptr.hpp>
 #include <glm\gtx\rotate_vector.hpp>
+
 #include "PhysicsEngine.hpp"
-using namespace std;
 
 class FPSCamera
 {
 public:
-
+	const float CameraMoveSensitivity = 2;
+	const float CameraRotateSensitivity = 0.01;
+	
 	FPSCamera()
 	{
-		physicsEngine = new PhysicsEngine;
-
-		isWPressing = isSPressing = isAPressing = isDPressing = false;
+		isWPressed = isSPressed = isAPressed = isDPressed = false;
 
 		pfov = 45.0;
 		pratio = 1.0;
@@ -37,18 +37,11 @@ public:
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-		viewMatrix = glm::lookAt(
-			cameraPos,
-			targetPos,
-			glm::vec3(0.f, 1.0f, 0.f)
-		);
+		viewMatrix = glm::lookAt(cameraPos,targetPos,glm::vec3(0.f, 1.0f, 0.f));
 		glMultMatrixf((float*)glm::value_ptr(viewMatrix));
 	}
 
-	~FPSCamera()
-	{
-		delete physicsEngine;
-	}
+	~FPSCamera() = default;
 
 	void resetWinSize(int w, int h)    //窗口大小发生变化时回调
 	{
@@ -75,68 +68,116 @@ public:
 		updateView();
 	}
 
-	void keyPressed(const unsigned char key)       //按键按下
-	{
-		switch (key) {
+	void keyPressed(const unsigned char key)
+	{		
+		switch (key)
+		{
+			//jump
 		case ' ':
-			cout << "space press!" << endl;
-			if (!physicsEngine->isJumping) {
-				physicsEngine->jumpAndUpdateVelocity();
-
+			if (!physicsEngine.isJumping)
+			{
+				physicsEngine.jumpAndUpdateVelocity();
 			}
-			physicsEngine->isJumping = true;
+			physicsEngine.isJumping = true;
 			break;
 
+			//move
 		case 'W':
 		case 'w':
-			isWPressing = true;
+			isWPressed = true;
 			break;
 
 		case 'S':
 		case 's':
-			isSPressing = true;
+			isSPressed = true;
 			break;
 
 		case 'A':
 		case 'a':
-			isAPressing = true;
+			isAPressed = true;
 			break;
 
 		case 'D':
 		case 'd':
-			isDPressing = true;
+			isDPressed = true;
 			break;
+
+			//camera
+		case 'J':
+		case 'j':
+			isLeftPressed = true;
+			break;
+
+		case 'L':
+		case 'l':
+			isRightPressed = true;
+			break;
+			
+		case 'I':
+		case 'i':
+			isUpPressed = true;
+			break;
+			
+		case 'K':
+		case 'k':
+			isDownPressed = true;
+			break;
+			
 		default:
 			break;
 		}
 	}
 
-	void keyUp(const unsigned char key)            //按键抬起
+	void keyUp(const unsigned char key)
 	{
-		switch (key) {
+		switch (key)
+		{
 		case ' ':
 
 			break;
 
+			//move
 		case 'W':
 		case 'w':
-			isWPressing = false;
+			isWPressed = false;
 			break;
 
 		case 'S':
 		case 's':
-			isSPressing = false;
+			isSPressed = false;
 			break;
 
 		case 'A':
 		case 'a':
-			isAPressing = false;
+			isAPressed = false;
 			break;
 
 		case 'D':
 		case 'd':
-			isDPressing = false;
+			isDPressed = false;
 			break;
+
+			//camera
+		case 'J':
+		case 'j':
+			isLeftPressed = false;
+			break;
+
+		case 'L':
+		case 'l':
+			isRightPressed = false;
+			break;
+
+		case 'I':
+		case 'i':
+			isUpPressed = false;
+			break;
+
+		case 'K':
+		case 'k':
+			isDownPressed = false;
+			break;
+			
 		default:
 			break;
 		}
@@ -144,18 +185,19 @@ public:
 
 	void setSceneOuterBoundary(float x1, float z1, float x2, float z2)    //设置空间外部边缘
 	{
-		physicsEngine->setSceneOuterBoundary(x1, z1, x2, z2);
+		physicsEngine.setSceneOuterBoundary(x1, z1, x2, z2);
 	}
 
 	void setSceneInnerBoundary(float x1, float y1, float z1, float x2, float y2, float z2)    //设置空间内部边缘
 	{
-		physicsEngine->setSceneInnerBoundary(x1, y1, z1, x2, y2, z2);
+		physicsEngine.setSceneInnerBoundary(x1, y1, z1, x2, y2, z2);
 	}
 
 	void updateCameraMovement()    //每帧绘制的时候更新摄像机移动
 	{
 		updateCameraHoriMovement();
 		updateCameraVertMovement();
+		updateCameraRotate();
 		updateView();
 	}
 
@@ -200,40 +242,67 @@ public:
 	glm::mat4 projectionMatrix;
 
 private:
-	void updateCameraHoriMovement()        //每帧绘制的时候更新摄像机水平方向移动
+	int winH = 0;
+	int winW = 0;
+
+	bool isWPressed, isSPressed, isAPressed, isDPressed;
+	bool isLeftPressed, isRightPressed, isUpPressed, isDownPressed;
+
+	//Lens parameters for the camera
+	GLfloat pfov, pratio, pnear, pfar;
+
+	//Camera roll, pitch, yaw info.
+	GLfloat roll, pitch, yaw;
+
+	PhysicsEngine physicsEngine;
+	
+	void updateCameraHoriMovement()
 	{
-		float dx = 0;
-		float dz = 0;
+		float dx = 0, dz = 0;
 
-		if (isWPressing)
-			dz += 2;
-		if (isSPressing)
-			dz -= 2;
-		if (isAPressing)
-			dx -= 2;
-		if (isDPressing)
-			dx += 2;
+		if (isWPressed)
+			dz += CameraMoveSensitivity;
+		if (isSPressed)
+			dz -= CameraMoveSensitivity;
+		if (isAPressed)
+			dx -= CameraMoveSensitivity;
+		if (isDPressed)
+			dx += CameraMoveSensitivity;
 
-		if (dz != 0 || dx != 0) {
-			//行走不改变y轴坐标
+		if (dz != 0 || dx != 0)
+		{
 			glm::vec3 forward = glm::vec3(viewMatrix[0][2], 0.f, viewMatrix[2][2]);
 			glm::vec3 strafe = glm::vec3(viewMatrix[0][0], 0.f, viewMatrix[2][0]);
 
-			cameraPos += (-dz * forward + dx * strafe) * MoveSpeed;
+			cameraPos += (-dz * forward + dx * strafe) * PlayerMoveSpeed;
 			targetPos = cameraPos + (-dz * forward + dx * strafe) * 1.5f;
 
-			//每次做完坐标变换后，先进行碰撞检测来调整坐标
-			physicsEngine->outCollisionTest(cameraPos, targetPos);
-			physicsEngine->inCollisionTest(cameraPos, targetPos);
+			//perform CollisionTest to avoid camera entering some strange places.
+			physicsEngine.outCollisionTest(cameraPos, targetPos);
+			physicsEngine.inCollisionTest(cameraPos, targetPos);
 		}
 	}
 
-	void updateCameraVertMovement()        //每帧绘制的时候更新摄像机垂直方向移动
+	void updateCameraRotate()
 	{
-		physicsEngine->updateCameraVertMovement(cameraPos, targetPos);
+		float pitch = 0, yaw = 0;
+		if (isLeftPressed)
+			yaw += CameraRotateSensitivity;
+		if (isRightPressed)
+			yaw -= CameraRotateSensitivity;
+		if (isUpPressed)
+			pitch += CameraRotateSensitivity;
+		if (isDownPressed)
+			pitch -= CameraRotateSensitivity;
+		rotate(pitch, yaw);
 	}
 
-	void updateView()                      //更新视角
+	void updateCameraVertMovement()
+	{
+		physicsEngine.updateCameraVertMovement(cameraPos, targetPos);
+	}
+
+	void updateView()
 	{
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
@@ -248,19 +317,4 @@ private:
 
 		glMultMatrixf((float*)glm::value_ptr(viewMatrix));
 	}
-
-	int winH = 0;
-	int winW = 0;
-
-	bool isWPressing, isSPressing, isAPressing, isDPressing;
-
-
-	//Lens parameters for the camera
-	GLfloat pfov, pratio, pnear, pfar;
-
-	//Camera roll, pitch, yaw info.
-	GLfloat roll, pitch, yaw;
-
-	PhysicsEngine* physicsEngine;
-
 };

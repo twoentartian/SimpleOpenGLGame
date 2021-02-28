@@ -16,12 +16,10 @@
 #include <assimp/scene.h>
 
 
-using namespace std;
-
-string getBasePath(const string& path)
+std::string getBasePath(const std::string& path)
 {
 	size_t pos = path.find_last_of("\\/");
-	return (string::npos == pos) ? "" : path.substr(0, pos + 1);
+	return (std::string::npos == pos) ? "" : path.substr(0, pos + 1);
 }
 
 void color4_to_float4(const aiColor4D* c, float f[4]) {
@@ -49,7 +47,8 @@ public:
 
 		textureIdMap.clear();
 
-		if (textureIds) {
+		if (textureIds)
+		{
 			delete[] textureIds;
 			textureIds = NULL;
 		}
@@ -57,10 +56,10 @@ public:
 		aiReleaseImport(scene);    //清除new的空间，防止内存泄露
 	}
 
-	bool importModel(const string& pFile)        //加载模型
+	bool importModel(const std::string& pFile)        //加载模型
 	{
 		//先检查文件是否存在
-		ifstream fin(pFile.c_str());
+		std::ifstream fin(pFile.c_str());
 		if (!fin.fail())
 			fin.close();
 		else
@@ -70,8 +69,9 @@ public:
 
 		if (!scene)
 			return false;
-		else {
-			cout << "Import successfully!" << endl;
+		else
+		{
+			std::cout << "Import successfully!" << std::endl;
 			if (!loadTextures(scene, pFile))
 				return false;
 		}
@@ -87,29 +87,32 @@ public:
 
 private:
 	//加载texture
-	bool loadTextures(const aiScene* scene, const string modelPath)
+	bool loadTextures(const aiScene* scene, const std::string modelPath)
 	{
 		ILboolean success;
 
 		// Before calling ilInit() version should be checked.
-		if (ilGetInteger(IL_VERSION_NUM) < IL_VERSION) {
+		if (ilGetInteger(IL_VERSION_NUM) < IL_VERSION)
+		{
 			/// wrong DevIL version ///
-			string err_msg = "Wrong DevIL version. Old devil.dll in system32/SysWow64?";
-			cout << err_msg << endl;
+			std::string err_msg = "Wrong DevIL version. Old devil.dll in system32/SysWow64?";
+			std::cout << err_msg << std::endl;
 			return false;
 		}
 
 		ilInit(); // Initialization of DevIL 
 
 		//对于每一种材质 Material：
-		for (unsigned int m = 0; m < scene->mNumMaterials; m++) {
+		for (unsigned int m = 0; m < scene->mNumMaterials; m++)
+		{
 			int texIndex = 0;
 			aiReturn texFound = AI_SUCCESS;
 
 			aiString path;	// filename
 
 			//对当前材质，获取所有texture的图片id
-			while (texFound == AI_SUCCESS) {
+			while (texFound == AI_SUCCESS)
+			{
 				texFound = scene->mMaterials[m]->GetTexture(aiTextureType_DIFFUSE, texIndex, &path);
 				textureIdMap[path.data] = NULL;    //把纹理图片路径加到map的key值，value（纹理指针）为空
 				texIndex++;
@@ -117,9 +120,7 @@ private:
 		}
 
 		int numTextures = textureIdMap.size();    //texture数量
-
-												  // array with DevIL image IDs 
-		ILuint* imageIds = NULL;
+		ILuint* imageIds = NULL; // array with DevIL image IDs 
 		imageIds = new ILuint[numTextures];
 
 		// generate DevIL Image IDs 
@@ -133,20 +134,20 @@ private:
 		//glGenTextures(numTextures, textureIds);    //根据纹理参数返回n个纹理名称（不一定是连续的整数集合）
 
 		// get iterator 
-		map<string, GLuint*>::iterator itr = textureIdMap.begin();
+		std::map<std::string, GLuint*>::iterator itr = textureIdMap.begin();
 
-		string basepath = getBasePath(modelPath);
+		std::string basepath = getBasePath(modelPath);
 
 		//对于每个texture
 		for (int i = 0; i < numTextures; i++) {
 			//save IL image ID
-			string filename = (*itr).first;  // get filename
-			cout << "filename " << filename << endl;
+			std::string filename = (*itr).first;  // get filename
+			std::cout << "filename " << filename << std::endl;
 			(*itr).second = &textureIds[i];	  //把每个纹理Id放进map的value
 			itr++;								  // next texture
 
 			ilBindImage(imageIds[i]);    //每个图像id绑定一张图
-			string fileloc = basepath + filename;
+			std::string fileloc = basepath + filename;
 			success = ilLoadImage(fileloc.c_str());    //加载图片
 
 			if (success) { // If no error occurred: 
@@ -355,13 +356,12 @@ private:
 	}
 
 private:
-	const aiScene* scene = NULL;
+	const aiScene* scene = nullptr;
 	GLuint scene_list = 0;
 	aiVector3D scene_min, scene_max, scene_center;
 
-	map<string, GLuint*> textureIdMap;    // map image filenames to textureIds
+	std::map<std::string, GLuint*> textureIdMap;    // map image filenames to textureIds
 	GLuint* textureIds;					  // pointer to texture Array
-
 };
 
 #endif

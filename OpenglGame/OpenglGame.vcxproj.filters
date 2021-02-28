@@ -9,6 +9,9 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{ce80b4bf-b5ed-4a2b-97d8-a76feb203949}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FPSCamera.hpp">
@@ -37,5 +40,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
+    <None Include="shader.frag">
+      <Filter>Resource</Filter>
+    </None>
+    <None Include="shader.vert">
+      <Filter>Resource</Filter>
+    </None>
   </ItemGroup>
 </Project>

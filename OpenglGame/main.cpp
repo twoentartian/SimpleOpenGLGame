@@ -5,7 +5,7 @@
 
 #include "SceneController.hpp"
 
-#define Sensitivity 0.003    //摄像机漫游敏感度
+constexpr float MouseSensitivity = 0.003; // mouse move sensitivity
 
 enum GameStatus { MenuScene, GameScene };
 
@@ -15,8 +15,6 @@ static int mouseLastPosX = 0;
 static int mouseLastPosY = 0;
 
 GLuint texture[10];
-
-GameStatus gameStatus = MenuScene;
 
 Shader boxShader;
 
@@ -59,8 +57,10 @@ void drawScene()
 
 }
 
-void reshape(int width, int height) {
-	if (height == 0) {
+void reshape(int width, int height)
+{
+	if (height == 0)
+	{
 		height = 1;        //让高度为1（避免出现分母为0的现象）   
 	}
 
@@ -76,91 +76,65 @@ void initTexture()
 {
 	glEnable(GL_DEPTH_TEST);
 	glGenTextures(10, texture);
-	loadTex(0, "Textures/18.bmp", texture);    //地板
+	loadTex(0, "Textures/17.bmp", texture);    //地板
 
 	//选择以下任意一种天空盒贴图
 
-	loadTex(1, "Textures/Skybox/SkyBox2_up.bmp", texture);
-	loadTex(2, "Textures/Skybox/SkyBox2_down.bmp", texture);
-	loadTex(3, "Textures/Skybox/SkyBox2_left.bmp", texture);
-	loadTex(4, "Textures/Skybox/SkyBox2_right.bmp", texture);
-	loadTex(5, "Textures/Skybox/SkyBox2_front.bmp", texture);
-	loadTex(6, "Textures/Skybox/SkyBox2_back.bmp", texture);
+	loadTex(1, "Textures/Skybox1/up.png", texture);
+	loadTex(2, "Textures/Skybox1/down.png", texture);
+	loadTex(3, "Textures/Skybox1/left.png", texture);
+	loadTex(4, "Textures/Skybox1/right.png", texture);
+	loadTex(5, "Textures/Skybox1/front.png", texture);
+	loadTex(6, "Textures/Skybox1/back.png", texture);
 
 	boxShader.Use();
 	loadTex(7, "Textures/19d.bmp", texture);		//Box Diffuse
 	loadTex(8, "Textures/20b.bmp", texture);		//Box Bump
 	loadTex(9,"Textures/21s.bmp", texture);		//Box Specular
 	glUseProgram(NULL);
-
-	//loadTex(2, "Textures/Skybox/Sunny_up.bmp", texture);
-	//loadTex(3, "Textures/Skybox/Sunny_down.bmp", texture);
-	//loadTex(4, "Textures/Skybox/Sunny_left.bmp", texture);
-	//loadTex(5, "Textures/Skybox/Sunny_right.bmp", texture);
-	//loadTex(6, "Textures/Skybox/Sunny_front.bmp", texture);
-	//loadTex(7, "Textures/Skybox/Sunny_back.bmp", texture);
 }
+
+#pragma region UserInterface
 
 void normalKeyPress(unsigned char key, int x, int y)
 {
-	if (gameStatus == GameScene)
-		cam->keyPressed(key);
+	cam->keyPressed(key);
 }
 
 void normalKeyUp(unsigned char key, int x, int y)
 {
-	if (gameStatus == GameScene)
-		cam->keyUp(key);
+	cam->keyUp(key);
 }
 
-//鼠标刚点击时
 void mouseClick(int button, int state, int x, int y)
 {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
-		mouseLastPosX = x;
 		mouseLastPosY = y;
-
-		if (gameStatus == MenuScene) {
-			//这里可以修改成自适应的按钮位置坐标
-			if (245 <= x && x <= 357 && 445 <= y && y <= 493)
-				gameStatus = GameScene;
-			cout << "x " << x << " y " << y << endl;
-		}
+		mouseLastPosX = x;
 	}
 }
 
-//鼠标点击且移动时
 void mouseMove(int x, int y)
 {
-	if (gameStatus == GameScene)
-	{
-		//与点击处的相对距离
-		float pitch = (float)(y - mouseLastPosY) * Sensitivity;
-		float yaw = (float)(x - mouseLastPosX) * Sensitivity;
-		mouseLastPosY = y;
-		mouseLastPosX = x;
-		cam->rotate(pitch, yaw);
-	}
+	float pitch = (float)(mouseLastPosY - y) * MouseSensitivity;
+	float yaw = (float)(mouseLastPosX - x) * MouseSensitivity;
+	mouseLastPosY = y;
+	mouseLastPosX = x;
+	cam->rotate(pitch, yaw);
 }
+
+#pragma endregion
 
 void redraw()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	
-	if (gameStatus == MenuScene)
-	{
-		drawMenuSceneUIText(cam);
-	}
-	else
-	{
-		//初始化模板检测
-		glEnable(GL_STENCIL_TEST);
-		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	glEnable(GL_STENCIL_TEST);
+	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
-		drawScene();
-	}
+	drawScene();
 	glutSwapBuffers();
 }
 
@@ -195,7 +169,7 @@ int main(int argc, char *argv[])
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE | GLUT_STENCIL);
 	glutInitWindowPosition(250, 100);
 	glutInitWindowSize(600, 600);
-	int windowHandle = glutCreateWindow("Final project - OpenGL game!");
+	int windowHandle = glutCreateWindow("IN4152 3D Computer Graphics and Animation lab 1");
 
 	initializeGL();
 
