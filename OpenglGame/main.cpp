@@ -2,7 +2,8 @@
 
 #include <stdio.h>  
 #include <glm/gtx/string_cast.hpp>
-#include "SceneController.h"
+
+#include "SceneController.hpp"
 
 #define Sensitivity 0.003    //摄像机漫游敏感度
 
@@ -19,7 +20,8 @@ GameStatus gameStatus = MenuScene;
 
 Shader boxShader;
 
-void drawScene() {
+void drawScene()
+{
 
 	boxShader.Use();
 	glStencilMask(0x00);
@@ -65,11 +67,13 @@ void reshape(int width, int height) {
 	cam->resetWinSize(width, height);    
 }
 
-void idle() {
+void idle()
+{
 	glutPostRedisplay();
 }
 
-void initTexture() {
+void initTexture()
+{
 	glEnable(GL_DEPTH_TEST);
 	glGenTextures(10, texture);
 	loadTex(0, "Textures/18.bmp", texture);    //地板
@@ -97,19 +101,23 @@ void initTexture() {
 	//loadTex(7, "Textures/Skybox/Sunny_back.bmp", texture);
 }
 
-void normalKeyPress(unsigned char key, int x, int y) {
+void normalKeyPress(unsigned char key, int x, int y)
+{
 	if (gameStatus == GameScene)
 		cam->keyPressed(key);
 }
 
-void normalKeyUp(unsigned char key, int x, int y) {
+void normalKeyUp(unsigned char key, int x, int y)
+{
 	if (gameStatus == GameScene)
 		cam->keyUp(key);
 }
 
 //鼠标刚点击时
-void mouseClick(int button, int state, int x, int y) {
-	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+void mouseClick(int button, int state, int x, int y)
+{
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+	{
 		mouseLastPosX = x;
 		mouseLastPosY = y;
 
@@ -123,8 +131,10 @@ void mouseClick(int button, int state, int x, int y) {
 }
 
 //鼠标点击且移动时
-void mouseMove(int x, int y) {
-	if (gameStatus == GameScene) {
+void mouseMove(int x, int y)
+{
+	if (gameStatus == GameScene)
+	{
 		//与点击处的相对距离
 		float pitch = (float)(y - mouseLastPosY) * Sensitivity;
 		float yaw = (float)(x - mouseLastPosX) * Sensitivity;
@@ -134,13 +144,16 @@ void mouseMove(int x, int y) {
 	}
 }
 
-void redraw() {
+void redraw()
+{
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	
-	if (gameStatus == MenuScene) {
+	if (gameStatus == MenuScene)
+	{
 		drawMenuSceneUIText(cam);
 	}
-	else {
+	else
+	{
 		//初始化模板检测
 		glEnable(GL_STENCIL_TEST);
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
@@ -151,7 +164,8 @@ void redraw() {
 	glutSwapBuffers();
 }
 
-void initializeGL() {
+void initializeGL()
+{
 	glewInit();
 	glewExperimental = GL_TRUE;
 
@@ -173,10 +187,10 @@ void initializeGL() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	boxShader.load("shader.vert", "shader.frag");
-	
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 	glutInit(&argc, argv);    
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE | GLUT_STENCIL);
 	glutInitWindowPosition(250, 100);

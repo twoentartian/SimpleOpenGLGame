@@ -11,48 +11,27 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FPSCamera.h">
+    <ClInclude Include="FPSCamera.hpp">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="SceneController.h">
+    <ClInclude Include="Model.hpp">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="PhysicsEngine.h">
+    <ClInclude Include="ParticleSystem.hpp">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="Model.h">
+    <ClInclude Include="PhysicsEngine.hpp">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSystem.h">
+    <ClInclude Include="Shader.hpp">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="Shader.h">
+    <ClInclude Include="SceneController.hpp">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FPSCamera.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneController.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="texture.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="PhysicsEngine.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Model.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleSystem.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Shader.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

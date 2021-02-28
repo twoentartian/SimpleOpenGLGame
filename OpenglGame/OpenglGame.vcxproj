@@ -120,22 +120,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="FPSCamera.h" />
-    <ClInclude Include="Model.h" />
-    <ClInclude Include="ParticleSystem.h" />
-    <ClInclude Include="PhysicsEngine.h" />
-    <ClInclude Include="SceneController.h" />
-    <ClInclude Include="Shader.h" />
+    <ClInclude Include="FPSCamera.hpp" />
+    <ClInclude Include="Model.hpp" />
+    <ClInclude Include="ParticleSystem.hpp" />
+    <ClInclude Include="PhysicsEngine.hpp" />
+    <ClInclude Include="SceneController.hpp" />
+    <ClInclude Include="Shader.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FPSCamera.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Model.cpp" />
-    <ClCompile Include="ParticleSystem.cpp" />
-    <ClCompile Include="PhysicsEngine.cpp" />
-    <ClCompile Include="SceneController.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

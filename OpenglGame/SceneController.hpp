@@ -1,11 +1,23 @@
-#define _CRT_SECURE_NO_WARNINGS
+#pragma once
 
-#include "SceneController.h"
-#include "ParticleSystem.h"
-#include <iostream>
-#include <vector>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include <gl/glew.h>
+#include <gl/freeglut.h>
+#include <glm/glm.hpp>
+#include <soil\SOIL.h>
+
+#include "Model.hpp"
+#include "FPSCamera.hpp"
+#include "ParticleSystem.hpp"
+#include "Shader.hpp"
+
+#define roomSizeX 200.f
+#define roomSizeY 60.f
+#define roomSizeZ 200.f
+
+#define SkyboxSize 600.f             //天空盒大小
+
+#define EatBreadDistance 5.f         //吃掉面包的距离
+#define CloseToBreadDistance 200.f    //靠近面包的距离
 
 using namespace std;
 
@@ -28,7 +40,44 @@ GLfloat LightPosition2[] = { -SkyboxSize / 2.f, -SkyboxSize / 2.f, SkyboxSize / 
 GLfloat LightPosition3[] = { SkyboxSize / 2.f, -SkyboxSize / 2.f, SkyboxSize / 2.f, 1.0f };
 GLfloat LightPosition4[] = { 0.0f, -SkyboxSize / 2.f, -SkyboxSize / 2.f, 1.0f };
 
-void drawRect(GLuint texture) {
+void loadTex(int i, char *filename, GLuint* texture)
+{
+	//BITMAPINFOHEADER bitmapInfoHeader;                                 // bitmap信息头    
+	unsigned char* bitmapData;                                       // 纹理数据    
+
+	//bitmapData = LoadBitmapFile(filename, &bitmapInfoHeader);
+	int width, height;
+	bitmapData = SOIL_load_image(filename, &width, &height, 0, SOIL_LOAD_RGB);
+	glBindTexture(GL_TEXTURE_2D, texture[i]);
+	// 指定当前纹理的放大/缩小过滤方式   
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	glTexImage2D(GL_TEXTURE_2D,
+		0,         //mipmap层次(通常为，表示最上层)     
+		GL_RGB,    //我们希望该纹理有红、绿、蓝数据    
+		width, //纹理宽带，必须是n，若有边框+2     
+		height, //纹理高度，必须是n，若有边框+2     
+		0, //边框(0=无边框, 1=有边框)     
+		GL_RGB,    //bitmap数据的格式    
+		GL_UNSIGNED_BYTE, //每个颜色数据的类型    
+		bitmapData);    //bitmap数据指针    
+
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+	//glGenerateMipmap(GL_TEXTURE_2D);
+
+	SOIL_free_image_data(bitmapData);
+
+	//glActiveTexture(GL_TEXTURE0 + i);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void drawRect(GLuint texture)
+{
 	glEnable(GL_TEXTURE_2D);
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);    //天空盒加环境光
 	glEnable(GL_COLOR_MATERIAL);
@@ -51,14 +100,17 @@ void drawRect(GLuint texture) {
 	glDisable(GL_TEXTURE_2D);
 }
 
-struct Vertex {
+
+struct Vertex
+{
 	glm::vec3 pos;
 	glm::vec3 norm;
 	glm::vec2 texC;
 	glm::vec3 tangent;
 	glm::vec3 bitangent;
 
-	Vertex(glm::vec3 p, glm::vec3 n, glm::vec2 t) {
+	Vertex(glm::vec3 p, glm::vec3 n, glm::vec2 t)
+	{
 		pos = p;	norm = n;	texC = t;
 	}
 };
@@ -74,8 +126,58 @@ vector<unsigned int> CubeIndices = {
 	20, 21, 22, 20, 22, 23	//Bottom
 };
 
-void initCube(Shader shader) {
+void drawCube(GLuint texture)
+{
+	glEnable(GL_TEXTURE_2D);
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);    //盒子碰撞器加环境光
+	glEnable(GL_COLOR_MATERIAL);
+	int i, j;
+	const GLfloat x1 = -0.5, x2 = 0.5;
+	const GLfloat y1 = -0.5, y2 = 0.5;
+	const GLfloat z1 = -0.5, z2 = 0.5;
 
+	//指定六个面的四个顶点，每个顶点用3个坐标值表示
+	//前 后 上 下 左 右  
+
+	GLfloat point[6][4][3] = {
+		{ { x1,y1,z1 },{ x1,y2,z1 },{ x2,y2,z1 },{ x2,y1,z1 } },
+		{ { x1,y1,z2 },{ x2,y1,z2 },{ x2,y2,z2 },{ x1,y2,z2 } },
+		{ { x1,y2,z1 },{ x1,y2,z2 },{ x2,y2,z2 },{ x2,y2,z1 } },
+		{ { x1,y1,z1 },{ x2,y1,z1 },{ x2,y1,z2 },{ x1,y1,z2 } },
+		{ { x2,y1,z1 },{ x2,y2,z1 },{ x2,y2,z2 },{ x2,y1,z2 } },
+		{ { x1,y1,z1 },{ x1,y1,z2 },{ x1,y2,z2 },{ x1,y2,z1 } },
+	};
+
+	int dir[6][4][2] = {
+		{ { 0,0 },{ 0,1 },{ 1,1 },{ 1,0 } },
+		{ { 0,0 },{ 1,0 },{ 1,1 },{ 0,1 } },
+		{ { 0,1 },{ 0,0 },{ 1,0 },{ 1,1 } },
+		{ { 1,1 },{ 0,1 },{ 0,0 },{ 1,0 } },
+		{ { 1,0 },{ 1,1 },{ 0,1 },{ 0,0 } },
+		{ { 0,0 },{ 1,0 },{ 1,1 },{ 0,1 } },
+	};
+
+	for (i = 0; i < 6; i++) {
+		glm::vec3 v1(point[i][0][0], point[i][0][1], point[i][0][2]);
+		glm::vec3 v2(point[i][1][0], point[i][1][1], point[i][1][2]);
+		glm::vec3 normal = glm::normalize(glm::cross(v1, v2));
+
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glBegin(GL_QUADS);
+		for (j = 0; j < 4; j++) {
+			glTexCoord2iv(dir[i][j]);
+			glNormal3fv(glm::value_ptr(normal));
+			glVertex3fv(point[i][j]);
+		}
+		glEnd();
+	}
+
+	glDisable(GL_COLOR_MATERIAL);
+	glDisable(GL_TEXTURE_2D);
+}
+
+void initCube(Shader shader)
+{
 	const GLfloat x = 0.5;
 	const GLfloat y = 0.5;
 	const GLfloat z = 0.5;
@@ -91,7 +193,7 @@ void initCube(Shader shader) {
 	CubeVertices.push_back(Vertex(glm::vec3(x, y, -z), glm::vec3(1, 0, 0), glm::vec2(1, 0)));
 	CubeVertices.push_back(Vertex(glm::vec3(x, -y, -z), glm::vec3(1, 0, 0), glm::vec2(1, 1)));
 	CubeVertices.push_back(Vertex(glm::vec3(x, -y, z), glm::vec3(1, 0, 0), glm::vec2(0, 1)));
-	
+
 	//Top
 	CubeVertices.push_back(Vertex(glm::vec3(x, y, z), glm::vec3(0, 1, 0), glm::vec2(0, 0)));
 	CubeVertices.push_back(Vertex(glm::vec3(-x, y, z), glm::vec3(0, 1, 0), glm::vec2(0, 1)));
@@ -103,7 +205,7 @@ void initCube(Shader shader) {
 	CubeVertices.push_back(Vertex(glm::vec3(x, -y, -z), glm::vec3(0, 0, -1), glm::vec2(0, 0)));
 	CubeVertices.push_back(Vertex(glm::vec3(x, y, -z), glm::vec3(0, 0, -1), glm::vec2(0, 1)));
 	CubeVertices.push_back(Vertex(glm::vec3(-x, y, -z), glm::vec3(0, 0, -1), glm::vec2(1, 1)));
-	
+
 	//Left
 	CubeVertices.push_back(Vertex(glm::vec3(-x, -y, -z), glm::vec3(-1, 0, 0), glm::vec2(0, 0)));
 	CubeVertices.push_back(Vertex(glm::vec3(-x, y, -z), glm::vec3(-1, 0, 0), glm::vec2(0, 1)));
@@ -157,7 +259,7 @@ void initCube(Shader shader) {
 	glBindVertexArray(CubeVAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, CubeVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * CubeVertices.size() , &CubeVertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * CubeVertices.size(), &CubeVertices[0], GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, CubeEBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * CubeIndices.size(), &CubeIndices[0], GL_STATIC_DRAW);
@@ -185,8 +287,8 @@ void initCube(Shader shader) {
 	glBindVertexArray(0);
 }
 
-void drawCube(Shader shader, GLuint diffuse, GLuint bump, GLuint spec) {
-
+void drawCube(Shader shader, GLuint diffuse, GLuint bump, GLuint spec)	//modern gl draw, init before use.
+{
 	//Textures
 	glActiveTexture(GL_TEXTURE0);	//0th texture unit
 	glUniform1i(glGetUniformLocation(shader.Program, "diffuse_map"), 0);	//Bind "diffuse_map" in shader to 0th texture unit.
@@ -217,56 +319,8 @@ void drawCube(Shader shader, GLuint diffuse, GLuint bump, GLuint spec) {
 	glEnable(GL_TEXTURE0);
 }
 
-void drawCube(GLuint texture) {
-	glEnable(GL_TEXTURE_2D);
-	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);    //盒子碰撞器加环境光
-	glEnable(GL_COLOR_MATERIAL);
-	int i, j;
-	const GLfloat x1 = -0.5, x2 = 0.5;
-	const GLfloat y1 = -0.5, y2 = 0.5;
-	const GLfloat z1 = -0.5, z2 = 0.5;
-
-	//指定六个面的四个顶点，每个顶点用3个坐标值表示     
-	//前 后 上 下 左 右  
-
-	GLfloat point[6][4][3] = {
-		{ { x1,y1,z1 },{ x1,y2,z1 },{ x2,y2,z1 },{ x2,y1,z1 } },
-		{ { x1,y1,z2 },{ x2,y1,z2 },{ x2,y2,z2 },{ x1,y2,z2 } },
-		{ { x1,y2,z1 },{ x1,y2,z2 },{ x2,y2,z2 },{ x2,y2,z1 } },
-		{ { x1,y1,z1 },{ x2,y1,z1 },{ x2,y1,z2 },{ x1,y1,z2 } },
-		{ { x2,y1,z1 },{ x2,y2,z1 },{ x2,y2,z2 },{ x2,y1,z2 } },
-		{ { x1,y1,z1 },{ x1,y1,z2 },{ x1,y2,z2 },{ x1,y2,z1 } },
-	};
-
-	int dir[6][4][2] = {
-		{ { 0,0 },{ 0,1 },{ 1,1 },{ 1,0 } },
-		{ { 0,0 },{ 1,0 },{ 1,1 },{ 0,1 } },
-		{ { 0,1 },{ 0,0 },{ 1,0 },{ 1,1 } },
-		{ { 1,1 },{ 0,1 },{ 0,0 },{ 1,0 } },
-		{ { 1,0 },{ 1,1 },{ 0,1 },{ 0,0 } },
-		{ { 0,0 },{ 1,0 },{ 1,1 },{ 0,1 } },
-	};
-
-	for (i = 0; i < 6; i++) {
-		glm::vec3 v1(point[i][0][0], point[i][0][1], point[i][0][2]);
-		glm::vec3 v2(point[i][1][0], point[i][1][1], point[i][1][2]);
-		glm::vec3 normal = glm::normalize(glm::cross(v1, v2));
-
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glBegin(GL_QUADS);
-		for (j = 0; j < 4; j++) {
-			glTexCoord2iv(dir[i][j]);
-			glNormal3fv(glm::value_ptr(normal));
-			glVertex3fv(point[i][j]);
-		}
-		glEnd();
-	}
-
-	glDisable(GL_COLOR_MATERIAL);
-	glDisable(GL_TEXTURE_2D);
-}
-
-void drawSkybox(GLuint* texture) {
+void drawSkybox(GLuint* texture)
+{
 	//上    
 	glPushMatrix();
 	glTranslatef(0.0f, SkyboxSize / 2.0f, 0.0f);
@@ -324,75 +378,77 @@ void drawSkybox(GLuint* texture) {
 	glPopMatrix();
 }
 
-void initSingleBoxCollider(glm::vec3 pos, glm::vec3 scalar) {
+void initSingleBoxCollider(glm::vec3 pos, glm::vec3 scalar)    //设置单个盒子的位置和大小
+{
 	boxPosition.push_back(pos);
 	boxScale.push_back(scalar);
 	boxSum++;
 	isBreadEatenSet.push_back(false);
 }
 
-void initBoxCollidersProperty() {
+void initBoxCollidersProperty()                   //设置盒子的位置和大小
+{
 	//1-0
-	initSingleBoxCollider(glm::vec3(-60.f, -1.0f*roomSizeY / 2.0f + 2.5f, 60.f),
+	initSingleBoxCollider(glm::vec3(-60.f, -1.0f * roomSizeY / 2.0f + 2.5f, 60.f),
 		glm::vec3(5, 5, 40));
 	//2-1
-	initSingleBoxCollider(glm::vec3(-70.f, -1.0f*roomSizeY / 2.0f + 7.5f, 40.f),
+	initSingleBoxCollider(glm::vec3(-70.f, -1.0f * roomSizeY / 2.0f + 7.5f, 40.f),
 		glm::vec3(20, 5, 5));
 	//3-2
-	initSingleBoxCollider(glm::vec3(-80.f, -1.0f*roomSizeY / 2.0f + 12.5f, 0.f),
+	initSingleBoxCollider(glm::vec3(-80.f, -1.0f * roomSizeY / 2.0f + 12.5f, 0.f),
 		glm::vec3(5, 5, 80));
 	//4-1
-	initSingleBoxCollider(glm::vec3(-50.f, -1.0f*roomSizeY / 2.0f + 7.5f, -40.f),
+	initSingleBoxCollider(glm::vec3(-50.f, -1.0f * roomSizeY / 2.0f + 7.5f, -40.f),
 		glm::vec3(60, 5, 5));
 	//5-2
-	initSingleBoxCollider(glm::vec3(-20.f, -1.0f*roomSizeY / 2.0f + 12.5f, -20.f),
+	initSingleBoxCollider(glm::vec3(-20.f, -1.0f * roomSizeY / 2.0f + 12.5f, -20.f),
 		glm::vec3(5, 5, 40));
 	//5.1-3
-	initSingleBoxCollider(glm::vec3(-30.f, -1.0f*roomSizeY / 2.0f + 17.5f, 0.f),
+	initSingleBoxCollider(glm::vec3(-30.f, -1.0f * roomSizeY / 2.0f + 17.5f, 0.f),
 		glm::vec3(20, 5, 5));
 	//6-4
-	initSingleBoxCollider(glm::vec3(-40.f, -1.0f*roomSizeY / 2.0f + 22.5f, 10.f),
+	initSingleBoxCollider(glm::vec3(-40.f, -1.0f * roomSizeY / 2.0f + 22.5f, 10.f),
 		glm::vec3(5, 5, 20));
 	//7-3
-	initSingleBoxCollider(glm::vec3(-10.f, -1.0f*roomSizeY / 2.0f + 17.5f, 20.f),
+	initSingleBoxCollider(glm::vec3(-10.f, -1.0f * roomSizeY / 2.0f + 17.5f, 20.f),
 		glm::vec3(60, 5, 5));
 	//8-4
-	initSingleBoxCollider(glm::vec3(20.f, -1.0f*roomSizeY / 2.0f + 22.5f, -30.f),
+	initSingleBoxCollider(glm::vec3(20.f, -1.0f * roomSizeY / 2.0f + 22.5f, -30.f),
 		glm::vec3(5, 5, 100));
 	//9-5
-	initSingleBoxCollider(glm::vec3(-20.f, -1.0f*roomSizeY / 2.0f + 27.5f, -80.f),
+	initSingleBoxCollider(glm::vec3(-20.f, -1.0f * roomSizeY / 2.0f + 27.5f, -80.f),
 		glm::vec3(80, 5, 5));
 	//10-3
-	initSingleBoxCollider(glm::vec3(50.f, -1.0f*roomSizeY / 2.0f + 17.5f, -80.f),
+	initSingleBoxCollider(glm::vec3(50.f, -1.0f * roomSizeY / 2.0f + 17.5f, -80.f),
 		glm::vec3(60, 5, 5));
 	//11-2
-	initSingleBoxCollider(glm::vec3(80.f, -1.0f*roomSizeY / 2.0f + 12.5f, -60.f),
+	initSingleBoxCollider(glm::vec3(80.f, -1.0f * roomSizeY / 2.0f + 12.5f, -60.f),
 		glm::vec3(5, 5, 40));
 	//12-1
-	initSingleBoxCollider(glm::vec3(60.f, -1.0f*roomSizeY / 2.0f + 7.5f, -40.f),
+	initSingleBoxCollider(glm::vec3(60.f, -1.0f * roomSizeY / 2.0f + 7.5f, -40.f),
 		glm::vec3(40, 5, 5));
 	//13-2
-	initSingleBoxCollider(glm::vec3(40.f, -1.0f*roomSizeY / 2.0f + 12.5f, 10.f),
+	initSingleBoxCollider(glm::vec3(40.f, -1.0f * roomSizeY / 2.0f + 12.5f, 10.f),
 		glm::vec3(5, 5, 100));
 	//14-3
-	initSingleBoxCollider(glm::vec3(20.f, -1.0f*roomSizeY / 2.0f + 17.5f, 60.f),
+	initSingleBoxCollider(glm::vec3(20.f, -1.0f * roomSizeY / 2.0f + 17.5f, 60.f),
 		glm::vec3(40, 5, 5));
 	//15-2
-	initSingleBoxCollider(glm::vec3(-20.f, -1.0f*roomSizeY / 2.0f + 12.5f, 60.f),
+	initSingleBoxCollider(glm::vec3(-20.f, -1.0f * roomSizeY / 2.0f + 12.5f, 60.f),
 		glm::vec3(40, 5, 5));
 	//16-4
-	initSingleBoxCollider(glm::vec3(0.f, -1.0f*roomSizeY / 2.0f + 22.5f, 70.f),
+	initSingleBoxCollider(glm::vec3(0.f, -1.0f * roomSizeY / 2.0f + 22.5f, 70.f),
 		glm::vec3(5, 5, 20));
 	//17-5
-	initSingleBoxCollider(glm::vec3(40.f, -1.0f*roomSizeY / 2.0f + 27.5f, 80.f),
+	initSingleBoxCollider(glm::vec3(40.f, -1.0f * roomSizeY / 2.0f + 27.5f, 80.f),
 		glm::vec3(80, 5, 5));
 	//18-6
-	initSingleBoxCollider(glm::vec3(80.f, -1.0f*roomSizeY / 2.0f + 32.5f, 40.f),
+	initSingleBoxCollider(glm::vec3(80.f, -1.0f * roomSizeY / 2.0f + 32.5f, 40.f),
 		glm::vec3(5, 5, 80));
-
 }
 
-void setBoxColliderBoundary(FPSCamera* cam) {
+void setBoxColliderBoundary(FPSCamera* cam)       //设置盒子碰撞边缘
+{
 	for (int i = 0; i < boxPosition.size(); i++) {
 		cam->setSceneInnerBoundary(boxPosition[i].x - boxScale[i].x / 2.f,
 			boxPosition[i].y - boxScale[i].y / 2.f,
@@ -403,8 +459,20 @@ void setBoxColliderBoundary(FPSCamera* cam) {
 	}
 }
 
-void drawBoxColliders(Shader shader, GLuint diffuse, GLuint bump, GLuint spec, FPSCamera* cam) {
+void drawBoxColliders(GLuint* texture)            //绘制盒子
+{
+	for (int i = 0; i < boxPosition.size(); i++) {
+		glStencilMask(0x00);
+		glPushMatrix();
+		glTranslatef(boxPosition[i].x, boxPosition[i].y, boxPosition[i].z);
+		glScalef(boxScale[i].x, boxScale[i].y, boxScale[i].z);
+		drawCube(texture[0]);
+		glPopMatrix();
+	}
+}
 
+void drawBoxColliders(Shader shader, GLuint diffuse, GLuint bump, GLuint spec, FPSCamera* cam)	//Override with modernGL method
+{
 	glUniform3fv(
 		glGetUniformLocation(shader.Program, "lightPos1"),
 		1,
@@ -469,19 +537,8 @@ void drawBoxColliders(Shader shader, GLuint diffuse, GLuint bump, GLuint spec, F
 	}
 }
 
-void drawBoxColliders(GLuint* texture) {
-	for (int i = 0; i < boxPosition.size(); i++) {
-		glStencilMask(0x00);
-		glPushMatrix();
-		glTranslatef(boxPosition[i].x, boxPosition[i].y, boxPosition[i].z);
-		glScalef(boxScale[i].x, boxScale[i].y, boxScale[i].z);
-		drawCube(texture[0]);
-		glPopMatrix();
-	}	
-}
-
-
-void initBreadModels() {
+void initBreadModels()        //初始化面包集
+{
 	int breadSum = boxSum;
 
 	Model* myBreadModel = new Model;
@@ -500,7 +557,8 @@ void initBreadModels() {
 	}
 }
 
-void drawBreadModels() {
+void drawBreadModels()        //绘制面包集
+{
 	for (int i = 0; i < breadSet.size(); i++) {
 		if (!isBreadEatenSet[i]) {
 			glPushMatrix();
@@ -539,7 +597,8 @@ void drawBreadModels() {
 	angle += 1.5f;
 }
 
-void playBreadEatenEffect (FPSCamera* cam) {
+void playBreadEatenEffect(FPSCamera* cam)
+{
 	for (int i = 0; i < breadSet.size(); i++) {
 		if (isBreadEatenSet[i]) {
 			glPushMatrix();
@@ -552,12 +611,14 @@ void playBreadEatenEffect (FPSCamera* cam) {
 	}
 }
 
-void deleteBreadModels() {
+void deleteBreadModels()      //销毁面包集
+{
 	for (int i = 0; i < breadSet.size(); i++)
 		delete breadSet[i];
 }
 
-void detectBreadBeingEaten(FPSCamera* cam) {
+void detectBreadBeingEaten(FPSCamera* cam)      //检测面包是否被吃掉
+{
 	for (int i = 0; i < breadSet.size(); i++) {
 		if (!isBreadEatenSet[i]) {
 			glm::vec3 breadPos(boxPosition[i].x, boxPosition[i].y + 10.f, boxPosition[i].z);
@@ -740,7 +801,7 @@ void drawMenuSceneUIText(FPSCamera* cam) {
 	//控制方式
 	glPushMatrix();
 	glRasterPos3f(cam->cameraPos.x - 1.f, cam->cameraPos.y + 0.5f, cam->cameraPos.z - 5.f);
-	const char * GameRuleCtrlc = GameRuleCtrl.c_str();
+	const char* GameRuleCtrlc = GameRuleCtrl.c_str();
 	sprintf(strBuffer, "%s", GameRuleCtrlc);
 	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)strBuffer);
 	glPopMatrix();
@@ -748,7 +809,7 @@ void drawMenuSceneUIText(FPSCamera* cam) {
 	//目标
 	glPushMatrix();
 	glRasterPos3f(cam->cameraPos.x - 1.f, cam->cameraPos.y - 0.3f, cam->cameraPos.z - 5.f);
-	const char * GameRuleTargetc = GameRuleTarget.c_str();
+	const char* GameRuleTargetc = GameRuleTarget.c_str();
 	sprintf(strBuffer, "%s", GameRuleTargetc);
 	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)strBuffer);
 	glPopMatrix();
@@ -772,7 +833,7 @@ void drawMenuSceneUIText(FPSCamera* cam) {
 	drawEnString(GameStartTitle.c_str());
 	glPopMatrix();
 
-	
+
 	glPushMatrix();
 	selectFont(24, GB2312_CHARSET, FONT_KaiTi);
 	//selectFont(24, GB2312_CHARSET, FONT_FangSong);
@@ -808,13 +869,13 @@ void drawGameSceneUIText(FPSCamera* cam, int x, int y) {
 	);
 
 	vpMatI = glm::inverse(glm::transpose(vpMatI));
-	glm::vec3 world = (vpMatI) * glm::vec3(x, y, 1);
+	glm::vec3 world = (vpMatI)*glm::vec3(x, y, 1);
 	debugOnce(once, vpMatI);
 
 	//why to add this ??????
 	drawEnString("tt");
 
-	
+
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
@@ -828,9 +889,9 @@ void drawGameSceneUIText(FPSCamera* cam, int x, int y) {
 	glRasterPos3f(world[0], world[1], 0);
 
 	char strBuffer[80];
-	const char * UIText1c = GameSceneUIText.c_str();
+	const char* UIText1c = GameSceneUIText.c_str();
 	string UIText2 = " / ";
-	const char * UIText2c = UIText2.c_str();
+	const char* UIText2c = UIText2.c_str();
 	sprintf(strBuffer, "%s%d%s%d", UIText1c, eatenBreadNum, UIText2c, boxSum);
 	//glutBitmapString(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)strBuffer);
 	drawEnString(strBuffer);
@@ -842,7 +903,7 @@ void drawGameSceneUIText(FPSCamera* cam, int x, int y) {
 		selectFont(victoryTextSize, ANSI_CHARSET, FONT_ComicSansMS);
 		glPushMatrix();
 		applyRedMaterial();
-		
+
 		glRasterPos3f(-0.5, 0, 0);
 		drawEnString(GameVictory.c_str());
 		glPopMatrix();
