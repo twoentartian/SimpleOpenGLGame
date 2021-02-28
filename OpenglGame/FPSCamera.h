@@ -9,23 +9,23 @@ class FPSCamera {
 
 		FPSCamera();
 		~FPSCamera();
-		void resetWinSize(int w, int h);    //´°¿Ú´óĞ¡·¢Éú±ä»¯Ê±»Øµ÷
+		void resetWinSize(int w, int h);    //çª—å£å¤§å°å‘ç”Ÿå˜åŒ–æ—¶å›è°ƒ
 
 		void rotate(GLfloat const pitchRad, GLfloat const yawRad);
-		void keyPressed(const unsigned char key);       //°´¼ü°´ÏÂ
-		void keyUp(const unsigned char key);            //°´¼üÌ§Æğ
+		void keyPressed(const unsigned char key);       //æŒ‰é”®æŒ‰ä¸‹
+		void keyUp(const unsigned char key);            //æŒ‰é”®æŠ¬èµ·
 
-		void setSceneOuterBoundary(float x1, float z1, float x2, float z2);    //ÉèÖÃ¿Õ¼äÍâ²¿±ßÔµ
-		void setSceneInnerBoundary(float x1, float y1, float z1, float x2, float y2, float z2);    //ÉèÖÃ¿Õ¼äÄÚ²¿±ßÔµ
+		void setSceneOuterBoundary(float x1, float z1, float x2, float z2);    //è®¾ç½®ç©ºé—´å¤–éƒ¨è¾¹ç¼˜
+		void setSceneInnerBoundary(float x1, float y1, float z1, float x2, float y2, float z2);    //è®¾ç½®ç©ºé—´å†…éƒ¨è¾¹ç¼˜
 
-		void updateCameraMovement();    //Ã¿Ö¡»æÖÆµÄÊ±ºò¸üĞÂÉãÏñ»úÒÆ¶¯
+		void updateCameraMovement();    //æ¯å¸§ç»˜åˆ¶çš„æ—¶å€™æ›´æ–°æ‘„åƒæœºç§»åŠ¨
 
 		glm::vec3 getForward();
 
-		//¸ù¾İÃæ°üµÄÎ»ÖÃÅĞ¶ÏÊÇ·ñÄÜ³ÔµôÃæ°ü
+		//æ ¹æ®é¢åŒ…çš„ä½ç½®åˆ¤æ–­æ˜¯å¦èƒ½åƒæ‰é¢åŒ…
 		bool detectPlayerEatingBread(glm::vec3 breadPos, float dist);
 
-		//ÅĞ¶ÏÍæ¼ÒÊÇ·ñ¿¿½üÄ³¸öÃæ°ü
+		//åˆ¤æ–­ç©å®¶æ˜¯å¦é è¿‘æŸä¸ªé¢åŒ…
 		bool detectPlayerCloseToBread(glm::vec3 breadPos, float dist);
 
 		glm::vec3 cameraPos;
@@ -36,9 +36,9 @@ class FPSCamera {
 		glm::mat4 projectionMatrix;
 
 	private:
-		void updateCameraHoriMovement();        //Ã¿Ö¡»æÖÆµÄÊ±ºò¸üĞÂÉãÏñ»úË®Æ½·½ÏòÒÆ¶¯
-		void updateCameraVertMovement();        //Ã¿Ö¡»æÖÆµÄÊ±ºò¸üĞÂÉãÏñ»ú´¹Ö±·½ÏòÒÆ¶¯
-		void updateView();                      //¸üĞÂÊÓ½Ç
+		void updateCameraHoriMovement();        //æ¯å¸§ç»˜åˆ¶çš„æ—¶å€™æ›´æ–°æ‘„åƒæœºæ°´å¹³æ–¹å‘ç§»åŠ¨
+		void updateCameraVertMovement();        //æ¯å¸§ç»˜åˆ¶çš„æ—¶å€™æ›´æ–°æ‘„åƒæœºå‚ç›´æ–¹å‘ç§»åŠ¨
+		void updateView();                      //æ›´æ–°è§†è§’
 
 		int winH = 0;
 		int winW = 0;

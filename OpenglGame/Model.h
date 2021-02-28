@@ -23,18 +23,18 @@ public:
 	Model();
 	~Model();
 
-	bool importModel(const string& pFile);        //加载模型
+	bool importModel(const string& pFile);        //鍔犺浇妯″瀷
 
-	void renderTheModel(float scale, bool isAmbient);             //渲染模型入口
+	void renderTheModel(float scale, bool isAmbient);             //娓叉煋妯″瀷鍏ュ彛
 
 private:
-	//加载texture
+	//鍔犺浇texture
 	bool loadTextures(const aiScene* scene, const string modelPath);
 
-	//递归渲染模型
+	//閫掑綊娓叉煋妯″瀷
 	void recursiveRender(const struct aiScene *sc, const struct aiNode* nd, float scale, bool isAmbient);
 
-	//给模型添加texture
+	//缁欐ā鍨嬫坊鍔爐exture
 	void applyMaterial(const aiMaterial *mtl, bool isAmbient);
 
 private:
