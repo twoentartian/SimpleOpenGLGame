@@ -8,6 +8,49 @@
 
 #include "PhysicsEngine.hpp"
 
+class TranslationAndRotate
+{
+public:
+	template<typename T>
+	static glm::mat<4, 4, T, glm::defaultp> rotate(glm::mat<4, 4, T, glm::defaultp> const& m, const T& angle, glm::vec<3, T, glm::defaultp> const& v)
+	{
+		const T& c = cos(angle);
+		const T& s = sin(angle);
+
+		glm::vec<3, T, glm::defaultp> axis(glm::normalize(v));
+		glm::vec<3, T, glm::defaultp> temp((T(1) - c) * axis);
+
+		glm::mat<4, 4, T, glm::defaultp> Rotate;
+		Rotate[0][0] = c + temp[0] * axis[0];
+		Rotate[0][1] = temp[0] * axis[1] + s * axis[2];
+		Rotate[0][2] = temp[0] * axis[2] - s * axis[1];
+
+		Rotate[1][0] = temp[1] * axis[0] - s * axis[2];
+		Rotate[1][1] = c + temp[1] * axis[1];
+		Rotate[1][2] = temp[1] * axis[2] + s * axis[0];
+
+		Rotate[2][0] = temp[2] * axis[0] + s * axis[1];
+		Rotate[2][1] = temp[2] * axis[1] - s * axis[0];
+		Rotate[2][2] = c + temp[2] * axis[2];
+
+		glm::mat<4, 4, T, glm::defaultp> Result;
+		Result[0] = m[0] * Rotate[0][0] + m[1] * Rotate[0][1] + m[2] * Rotate[0][2];
+		Result[1] = m[0] * Rotate[1][0] + m[1] * Rotate[1][1] + m[2] * Rotate[1][2];
+		Result[2] = m[0] * Rotate[2][0] + m[1] * Rotate[2][1] + m[2] * Rotate[2][2];
+		Result[3] = m[3];
+		return Result;
+	}
+
+	template<typename T>
+	static glm::mat<4, 4, T, glm::defaultp> translate(glm::mat<4, 4, T, glm::defaultp> const& m, glm::vec<3, T, glm::defaultp> const& v)
+	{
+		glm::mat<4, 4, T, glm::defaultp> Result(m);
+		Result[3] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3];
+		return Result;
+	}
+	
+};
+
 class FPSCamera
 {
 public:
@@ -307,11 +350,11 @@ private:
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
-		glm::mat4 matroll = glm::rotate(glm::mat4(1.0), -roll, glm::vec3(0.0f, 0.0f, 1.0f));
-		glm::mat4 matpitch = glm::rotate(glm::mat4(1.0), -pitch, glm::vec3(1.0f, 0.0f, 0.0f));
-		glm::mat4 matyaw = glm::rotate(glm::mat4(1.0), -yaw, glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::mat4 matroll = TranslationAndRotate::rotate(glm::mat4(1.0), -roll, glm::vec3(0.0f, 0.0f, 1.0f));
+		glm::mat4 matpitch = TranslationAndRotate::rotate(glm::mat4(1.0), -pitch, glm::vec3(1.0f, 0.0f, 0.0f));
+		glm::mat4 matyaw = TranslationAndRotate::rotate(glm::mat4(1.0), -yaw, glm::vec3(0.0f, 1.0f, 0.0f));
 
-		glm::mat4 mattranslate = glm::translate(glm::mat4(1.0f), -cameraPos);
+		glm::mat4 mattranslate = TranslationAndRotate::translate(glm::mat4(1.0f), -cameraPos);
 
 		viewMatrix = matroll * matpitch * matyaw * mattranslate;
 

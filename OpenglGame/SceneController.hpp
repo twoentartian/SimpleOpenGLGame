@@ -14,7 +14,7 @@ constexpr float roomSizeX = 200.0f;
 constexpr float roomSizeY = 60.0f;
 constexpr float roomSizeZ = 200.0f;
 
-constexpr float SkyboxSize = 600.0f;
+constexpr float SkyboxSize = 1000.0f;
 
 constexpr float EatBreadDistance = 5.0f;
 constexpr float CloseToBreadDistance = 200.0f;
@@ -62,40 +62,106 @@ void loadTex(int i, char *filename, GLuint* texture)
 		GL_UNSIGNED_BYTE, //每个颜色数据的类型    
 		bitmapData);    //bitmap数据指针    
 
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-	//glGenerateMipmap(GL_TEXTURE_2D);
-
 	SOIL_free_image_data(bitmapData);
-
-	//glActiveTexture(GL_TEXTURE0 + i);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void drawRect(GLuint texture)
+class Draw
 {
-	glEnable(GL_TEXTURE_2D);
-	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);    //天空盒加环境光
-	glEnable(GL_COLOR_MATERIAL);
+public:
+	static inline void drawRect(GLuint texture)
+	{
+		glEnable(GL_TEXTURE_2D);
+		glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);    //天空盒加环境光
+		glEnable(GL_COLOR_MATERIAL);
 
-	glBindTexture(GL_TEXTURE_2D, texture);  //选择纹理texture[status]   
-	const GLfloat x1 = -0.5, x2 = 0.5;
-	const GLfloat y1 = -0.5, y2 = 0.5;
-	const GLfloat point[4][2] = { { x1,y1 },{ x1,y2 },{ x2,y2 },{ x2,y1 } };
-	int dir[4][2] = { { 1,0 },{ 1,1 },{ 0,1 },{ 0,0 } };
-	glBegin(GL_QUADS);
+		glBindTexture(GL_TEXTURE_2D, texture);  //选择纹理texture[status]   
+		const GLfloat x1 = -0.5, x2 = 0.5;
+		const GLfloat y1 = -0.5, y2 = 0.5;
+		const GLfloat point[4][2] = { { x1,y1 },{ x1,y2 },{ x2,y2 },{ x2,y1 } };
+		int dir[4][2] = { { 1,0 },{ 1,1 },{ 0,1 },{ 0,0 } };
+		glBegin(GL_QUADS);
 
-	for (int i = 0; i < 4; i++) {
-		glTexCoord2iv(dir[i]);
-		glVertex2fv(point[i]);
+		for (int i = 0; i < 4; i++) {
+			glTexCoord2iv(dir[i]);
+			glVertex2fv(point[i]);
+		}
+		glEnd();
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glDisable(GL_COLOR_MATERIAL);
+		glDisable(GL_TEXTURE_2D);
 	}
-	glEnd();
-	glBindTexture(GL_TEXTURE_2D, 0);
+};
 
-	glDisable(GL_COLOR_MATERIAL);
-	glDisable(GL_TEXTURE_2D);
-}
+class Skybox
+{
+public:
+	static void drawSkybox(GLuint* texture)
+	{
+		//up
+		glPushMatrix();
+		glTranslatef(0.0f, SkyboxSize / 2.0f, 0.0f);
+		glRotatef(270, 1, 0, 0);
+
+		glScalef(SkyboxSize, SkyboxSize, 1);
+		Draw::drawRect(texture[1]);
+		glPopMatrix();
+
+		//down
+		glPushMatrix();
+		glTranslatef(0.0f, -SkyboxSize / 2.0f, 0.0f);
+		glRotatef(90, 1, 0, 0);
+
+		glScalef(SkyboxSize, SkyboxSize, 1);
+		Draw::drawRect(texture[2]);
+		glPopMatrix();
+
+		//left
+		glPushMatrix();
+		glTranslatef(-SkyboxSize / 2.0f, 0.0f, 0.0f);
+		glRotatef(270, 0, 1, 0);
+		glRotatef(180, 0, 0, 1);
+
+		glScalef(SkyboxSize, SkyboxSize, 1);
+		Draw::drawRect(texture[3]);
+		glPopMatrix();
+
+		//right
+		glPushMatrix();
+		glTranslatef(SkyboxSize / 2.0f, 0.0f, 0.0f);
+		glRotatef(90, 0, 1, 0);
+		glRotatef(180, 0, 0, 1);
+
+		glScalef(SkyboxSize, SkyboxSize, 1);
+		Draw::drawRect(texture[4]);
+		glPopMatrix();
+
+		//front
+		glPushMatrix();
+		glTranslatef(0.0f, 0.0f, -SkyboxSize / 2.0);
+		glRotatef(180, 1, 0, 0);
+
+		glScalef(SkyboxSize, SkyboxSize, 1);
+		Draw::drawRect(texture[5]);
+		glPopMatrix();
+
+		//back
+		glPushMatrix();
+		glTranslatef(0.0f, 0.0f, SkyboxSize / 2.0f);
+		glRotatef(180, 0, 0, 1);
+
+		glScalef(SkyboxSize, SkyboxSize, 1);
+		Draw::drawRect(texture[6]);
+		glPopMatrix();
+	}
+
+private:
+	
+	
+};
+
+
 
 struct Vertex
 {
@@ -314,64 +380,7 @@ void drawCube(Shader shader, GLuint diffuse, GLuint bump, GLuint spec)	//modern 
 	glEnable(GL_TEXTURE0);
 }
 
-void drawSkybox(GLuint* texture)
-{
-	//up
-	glPushMatrix();
-	glTranslatef(0.0f, SkyboxSize / 2.0f, 0.0f);
-	glRotatef(270, 1, 0, 0);
 
-	glScalef(SkyboxSize, SkyboxSize, 1);
-	drawRect(texture[1]);
-	glPopMatrix();
-
-	//down
-	glPushMatrix();
-	glTranslatef(0.0f, -SkyboxSize / 2.0f, 0.0f);
-	glRotatef(90, 1, 0, 0);
-
-	glScalef(SkyboxSize, SkyboxSize, 1);
-	drawRect(texture[2]);
-	glPopMatrix();
-
-	//left
-	glPushMatrix();
-	glTranslatef(-SkyboxSize / 2.0f, 0.0f, 0.0f);
-	glRotatef(270, 0, 1, 0);
-	glRotatef(180, 0, 0, 1);
-
-	glScalef(SkyboxSize, SkyboxSize, 1);
-	drawRect(texture[3]);
-	glPopMatrix();
-
-	//right
-	glPushMatrix();
-	glTranslatef(SkyboxSize / 2.0f, 0.0f, 0.0f);
-	glRotatef(90, 0, 1, 0);
-	glRotatef(180, 0, 0, 1);
-
-	glScalef(SkyboxSize, SkyboxSize, 1);
-	drawRect(texture[4]);
-	glPopMatrix();
-
-	//front
-	glPushMatrix();
-	glTranslatef(0.0f, 0.0f, -SkyboxSize / 2.0);
-	glRotatef(180, 1, 0, 0);
-
-	glScalef(SkyboxSize, SkyboxSize, 1);
-	drawRect(texture[5]);
-	glPopMatrix();
-
-	//back
-	glPushMatrix();
-	glTranslatef(0.0f, 0.0f, SkyboxSize / 2.0f);
-	glRotatef(180, 0, 0, 1);
-
-	glScalef(SkyboxSize, SkyboxSize, 1);
-	drawRect(texture[6]);
-	glPopMatrix();
-}
 
 void initSingleBoxCollider(glm::vec3 pos, glm::vec3 scalar)    //设置单个盒子的位置和大小
 {
@@ -384,62 +393,25 @@ void initSingleBoxCollider(glm::vec3 pos, glm::vec3 scalar)    //设置单个盒
 void initBoxCollidersProperty()                   //设置盒子的位置和大小
 {
 	//1-0
-	initSingleBoxCollider(glm::vec3(-60.f, -1.0f * roomSizeY / 2.0f + 2.5f, 60.f),
-		glm::vec3(5, 5, 40));
-	//2-1
-	initSingleBoxCollider(glm::vec3(-70.f, -1.0f * roomSizeY / 2.0f + 7.5f, 40.f),
-		glm::vec3(20, 5, 5));
-	//3-2
-	initSingleBoxCollider(glm::vec3(-80.f, -1.0f * roomSizeY / 2.0f + 12.5f, 0.f),
-		glm::vec3(5, 5, 80));
-	//4-1
-	initSingleBoxCollider(glm::vec3(-50.f, -1.0f * roomSizeY / 2.0f + 7.5f, -40.f),
-		glm::vec3(60, 5, 5));
-	//5-2
-	initSingleBoxCollider(glm::vec3(-20.f, -1.0f * roomSizeY / 2.0f + 12.5f, -20.f),
-		glm::vec3(5, 5, 40));
-	//5.1-3
-	initSingleBoxCollider(glm::vec3(-30.f, -1.0f * roomSizeY / 2.0f + 17.5f, 0.f),
-		glm::vec3(20, 5, 5));
-	//6-4
-	initSingleBoxCollider(glm::vec3(-40.f, -1.0f * roomSizeY / 2.0f + 22.5f, 10.f),
-		glm::vec3(5, 5, 20));
-	//7-3
-	initSingleBoxCollider(glm::vec3(-10.f, -1.0f * roomSizeY / 2.0f + 17.5f, 20.f),
-		glm::vec3(60, 5, 5));
-	//8-4
-	initSingleBoxCollider(glm::vec3(20.f, -1.0f * roomSizeY / 2.0f + 22.5f, -30.f),
-		glm::vec3(5, 5, 100));
-	//9-5
-	initSingleBoxCollider(glm::vec3(-20.f, -1.0f * roomSizeY / 2.0f + 27.5f, -80.f),
-		glm::vec3(80, 5, 5));
-	//10-3
-	initSingleBoxCollider(glm::vec3(50.f, -1.0f * roomSizeY / 2.0f + 17.5f, -80.f),
-		glm::vec3(60, 5, 5));
-	//11-2
-	initSingleBoxCollider(glm::vec3(80.f, -1.0f * roomSizeY / 2.0f + 12.5f, -60.f),
-		glm::vec3(5, 5, 40));
-	//12-1
-	initSingleBoxCollider(glm::vec3(60.f, -1.0f * roomSizeY / 2.0f + 7.5f, -40.f),
-		glm::vec3(40, 5, 5));
-	//13-2
-	initSingleBoxCollider(glm::vec3(40.f, -1.0f * roomSizeY / 2.0f + 12.5f, 10.f),
-		glm::vec3(5, 5, 100));
-	//14-3
-	initSingleBoxCollider(glm::vec3(20.f, -1.0f * roomSizeY / 2.0f + 17.5f, 60.f),
-		glm::vec3(40, 5, 5));
-	//15-2
-	initSingleBoxCollider(glm::vec3(-20.f, -1.0f * roomSizeY / 2.0f + 12.5f, 60.f),
-		glm::vec3(40, 5, 5));
-	//16-4
-	initSingleBoxCollider(glm::vec3(0.f, -1.0f * roomSizeY / 2.0f + 22.5f, 70.f),
-		glm::vec3(5, 5, 20));
-	//17-5
-	initSingleBoxCollider(glm::vec3(40.f, -1.0f * roomSizeY / 2.0f + 27.5f, 80.f),
-		glm::vec3(80, 5, 5));
-	//18-6
-	initSingleBoxCollider(glm::vec3(80.f, -1.0f * roomSizeY / 2.0f + 32.5f, 40.f),
-		glm::vec3(5, 5, 80));
+	initSingleBoxCollider(glm::vec3(-60.f, -1.0f * roomSizeY / 2.0f + 2.5f, 60.f),	glm::vec3(5, 5, 40));//2-1
+	initSingleBoxCollider(glm::vec3(-70.f, -1.0f * roomSizeY / 2.0f + 7.5f, 40.f),	glm::vec3(20, 5, 5));//3-2
+	initSingleBoxCollider(glm::vec3(-80.f, -1.0f * roomSizeY / 2.0f + 12.5f, 0.f),	glm::vec3(5, 5, 80));//4-1
+	initSingleBoxCollider(glm::vec3(-50.f, -1.0f * roomSizeY / 2.0f + 7.5f, -40.f),glm::vec3(60, 5, 5));//5-2
+	initSingleBoxCollider(glm::vec3(-20.f, -1.0f * roomSizeY / 2.0f + 12.5f, -20.f),glm::vec3(5, 5, 40));//5.1-3
+	initSingleBoxCollider(glm::vec3(-30.f, -1.0f * roomSizeY / 2.0f + 17.5f, 0.f),glm::vec3(20, 5, 5));//6-4
+	initSingleBoxCollider(glm::vec3(-40.f, -1.0f * roomSizeY / 2.0f + 22.5f, 10.f),glm::vec3(5, 5, 20));//7-3
+	initSingleBoxCollider(glm::vec3(-10.f, -1.0f * roomSizeY / 2.0f + 17.5f, 20.f),glm::vec3(60, 5, 5));//8-4
+	initSingleBoxCollider(glm::vec3(20.f, -1.0f * roomSizeY / 2.0f + 22.5f, -30.f),glm::vec3(5, 5, 100));//9-5
+	initSingleBoxCollider(glm::vec3(-20.f, -1.0f * roomSizeY / 2.0f + 27.5f, -80.f),glm::vec3(80, 5, 5));//10-3
+	initSingleBoxCollider(glm::vec3(50.f, -1.0f * roomSizeY / 2.0f + 17.5f, -80.f),glm::vec3(60, 5, 5));//11-2
+	initSingleBoxCollider(glm::vec3(80.f, -1.0f * roomSizeY / 2.0f + 12.5f, -60.f),glm::vec3(5, 5, 40));//12-1
+	initSingleBoxCollider(glm::vec3(60.f, -1.0f * roomSizeY / 2.0f + 7.5f, -40.f),	glm::vec3(40, 5, 5));//13-2
+	initSingleBoxCollider(glm::vec3(40.f, -1.0f * roomSizeY / 2.0f + 12.5f, 10.f),	glm::vec3(5, 5, 100));//14-3
+	initSingleBoxCollider(glm::vec3(20.f, -1.0f * roomSizeY / 2.0f + 17.5f, 60.f),	glm::vec3(40, 5, 5));//15-2
+	initSingleBoxCollider(glm::vec3(-20.f, -1.0f * roomSizeY / 2.0f + 12.5f, 60.f),glm::vec3(40, 5, 5));//16-4
+	initSingleBoxCollider(glm::vec3(0.f, -1.0f * roomSizeY / 2.0f + 22.5f, 70.f),glm::vec3(5, 5, 20));	//17-5
+	initSingleBoxCollider(glm::vec3(40.f, -1.0f * roomSizeY / 2.0f + 27.5f, 80.f),	glm::vec3(80, 5, 5));//18-6
+	initSingleBoxCollider(glm::vec3(80.f, -1.0f * roomSizeY / 2.0f + 32.5f, 40.f),	glm::vec3(5, 5, 80));
 }
 
 void setBoxColliderBoundary(FPSCamera* cam)       //设置盒子碰撞边缘
@@ -479,32 +451,15 @@ void drawBoxColliders(Shader shader, GLuint diffuse, GLuint bump, GLuint spec, F
 	float P[16];
 	glGetFloatv(GL_PROJECTION_MATRIX, P);
 	//Projection does not change
-	glUniformMatrix4fv(
-		glGetUniformLocation(shader.Program, "projection"),
-		1,
-		GL_FALSE,
-		//glm::value_ptr(cam->projectionMatrix)
-		P
-	);
+	glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"),1,GL_FALSE,P);
 
-	for (int i = 0; i < boxPosition.size(); i++) {
-
+	for (int i = 0; i < boxPosition.size(); i++)
+	{
 		glm::mat4 boxPos = glm::translate(glm::mat4(1.0), glm::vec3(boxPosition[i].x, boxPosition[i].y, boxPosition[i].z));
 		glm::mat4 boxScl = glm::scale(glm::mat4(1.0), glm::vec3(boxScale[i].x, boxScale[i].y, boxScale[i].z));
 
-		glUniformMatrix4fv(
-			glGetUniformLocation(shader.Program, "model"),
-			1,
-			GL_FALSE,
-			glm::value_ptr(boxPos * boxScl)
-		);
-
-		glUniformMatrix4fv(
-			glGetUniformLocation(shader.Program, "view"),
-			1,
-			GL_FALSE,
-			glm::value_ptr(cam->viewMatrix)
-		);
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"),1,GL_FALSE,glm::value_ptr(boxPos * boxScl));
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"),1,GL_FALSE,glm::value_ptr(cam->viewMatrix));
 
 		drawCube(shader, diffuse, bump, spec);
 	}
@@ -532,8 +487,10 @@ void initBreadModels()        //初始化面包集
 
 void drawBreadModels()        //绘制面包集
 {
-	for (int i = 0; i < breadSet.size(); i++) {
-		if (!isBreadEatenSet[i]) {
+	for (int i = 0; i < breadSet.size(); i++)
+	{
+		if (!isBreadEatenSet[i])
+		{
 			glPushMatrix();
 
 			// 设置模板缓冲为可写状态，把较小的面包放入模板缓冲（设为1）
@@ -548,7 +505,8 @@ void drawBreadModels()        //绘制面包集
 		}
 
 		//模板检测，绘制边缘
-		if (i == closeToBreadIndex) {
+		if (i == closeToBreadIndex)
+		{
 			glPushMatrix();
 
 			// 设置模板缓冲为不可写状态，只绘制 != 1 的部分
@@ -592,8 +550,10 @@ void deleteBreadModels()      //销毁面包集
 
 void detectBreadBeingEaten(FPSCamera* cam)      //检测面包是否被吃掉
 {
-	for (int i = 0; i < breadSet.size(); i++) {
-		if (!isBreadEatenSet[i]) {
+	for (int i = 0; i < breadSet.size(); i++)
+	{
+		if (!isBreadEatenSet[i])
+		{
 			glm::vec3 breadPos(boxPosition[i].x, boxPosition[i].y + 10.f, boxPosition[i].z);
 
 			//先检测是否靠近面包
@@ -620,7 +580,8 @@ float redDiffuse[4] = { 1, 0, 0, 1 };
 float redSpecular[4] = { 1, 0, 0, 1 };
 float redEmission[4] = { 1, 0, 0, 1 };
 
-void applyRedMaterial() {
+void applyRedMaterial()
+{
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, redAmbient);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, redDiffuse);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, redSpecular);
@@ -633,7 +594,8 @@ float whiteDiffuse[4] = { 1, 1, 1, 1 };
 float whiteSpecular[4] = { 1, 1, 1, 1 };
 float whiteEmission[4] = { 1, 1, 1, 1 };
 
-void applyWhiteMaterial() {
+void applyWhiteMaterial()
+{
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, whiteAmbient);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, whiteDiffuse);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, whiteSpecular);
@@ -646,7 +608,8 @@ float blackDiffuse[4] = { 0, 0, 0, 1 };
 float blackSpecular[4] = { 0, 0, 0, 1 };
 float blackEmission[4] = { 0, 0, 0, 1 };
 
-void applyBlackMaterial() {
+void applyBlackMaterial()
+{
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, blackAmbient);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, blackDiffuse);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, blackSpecular);
@@ -667,7 +630,8 @@ string GameMaker = "——由第26组制作";
 string GameVictory = "Win!!";
 
 //选择font
-void selectFont(int size, int charset, const char* face) {
+void selectFont(int size, int charset, const char* face)
+{
 	HFONT hFont = CreateFontA(size, 0, 0, 0, FW_MEDIUM, 0, 0, 0,
 		charset, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
 		DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, face);
@@ -676,13 +640,15 @@ void selectFont(int size, int charset, const char* face) {
 }
 
 vector<GLuint> listOfTexts;
-void initEnString(const char* str) {
+void initEnString(const char* str)
+{
 
 }
 
 //绘制英文文字
 #define MAX_CHAR 128
-void drawEnString(const char* str) {
+void drawEnString(const char* str)
+{
 	static int isFirstCall = 1;
 	GLuint lists;
 
@@ -718,12 +684,14 @@ int dSize = VictoryTextSizeGap;
 
 #include <glm/gtx/string_cast.hpp>
 bool once = false;
-void debugOnce(bool& once, glm::mat3 d) {
+void debugOnce(bool& once, glm::mat3 d)
+{
 	if (!once) {
 		cout << glm::to_string(d) << endl;
 		once = true;
 	}
 }
+
 void drawGameSceneUIText(FPSCamera* cam, int x, int y)
 {
 

@@ -2,6 +2,8 @@
 
 #include <stdio.h>  
 #include <glm/gtx/string_cast.hpp>
+#include <chrono>
+#include <thread>
 
 #include "SceneController.hpp"
 
@@ -15,23 +17,21 @@ static int mouseLastPosX = 0;
 static int mouseLastPosY = 0;
 
 GLuint texture[10];
-
 Shader boxShader;
 
 void drawScene()
 {
-
 	boxShader.Use();
 	glStencilMask(0x00);
 	glCullFace(GL_FRONT);
 	glEnable(GL_CULL_FACE);
-	drawBoxColliders(boxShader, texture[7], texture[8], texture[9], cam);	//Modern GL
+	//drawBoxColliders(boxShader, texture[7], texture[8], texture[9], cam);	//Modern GL
 	glDisable(GL_CULL_FACE);
 	glUseProgram(NULL);
 	
 	//天空盒
 	glStencilMask(0x00);
-	drawSkybox(texture);
+	Skybox::drawSkybox(texture);
 
 	//地板  
 	glPushMatrix();
@@ -39,31 +39,24 @@ void drawScene()
 	glTranslatef(0.0f, -roomSizeY / 2.0f, 0.0f);
 	glRotatef(90, 1, 0, 0);
 	glScalef(roomSizeX, roomSizeZ, 1);
-	drawRect(texture[0]);
+	Draw::drawRect(texture[0]);
 	glPopMatrix();
 
-	//箱子  
-	//drawBoxColliders(texture);
-	drawBreadModels();
-	playBreadEatenEffect(cam);
+	//箱子
+	//drawBreadModels();
+	//playBreadEatenEffect(cam);
 
-	glColor3f(1, 1, 1);
+	//glColor3f(1, 1, 1);
 
 	//文字
-	drawGameSceneUIText(cam, 50, 550);
+	//drawGameSceneUIText(cam, 50, 550);
 
 	cam->updateCameraMovement();
-	detectBreadBeingEaten(cam);
-
+	//detectBreadBeingEaten(cam);
 }
 
 void reshape(int width, int height)
 {
-	if (height == 0)
-	{
-		height = 1;        //让高度为1（避免出现分母为0的现象）   
-	}
-
 	cam->resetWinSize(width, height);    
 }
 
@@ -76,10 +69,9 @@ void initTexture()
 {
 	glEnable(GL_DEPTH_TEST);
 	glGenTextures(10, texture);
-	loadTex(0, "Textures/17.bmp", texture);    //地板
+	loadTex(0, "Textures/17.bmp", texture);
 
-	//选择以下任意一种天空盒贴图
-
+	//skybox
 	loadTex(1, "Textures/Skybox1/up.png", texture);
 	loadTex(2, "Textures/Skybox1/down.png", texture);
 	loadTex(3, "Textures/Skybox1/left.png", texture);
@@ -88,8 +80,8 @@ void initTexture()
 	loadTex(6, "Textures/Skybox1/back.png", texture);
 
 	boxShader.Use();
-	loadTex(7, "Textures/19d.bmp", texture);		//Box Diffuse
-	loadTex(8, "Textures/20b.bmp", texture);		//Box Bump
+	loadTex(7, "Textures/19d.bmp", texture);	//Box Diffuse
+	loadTex(8, "Textures/20b.bmp", texture);	//Box Bump
 	loadTex(9,"Textures/21s.bmp", texture);		//Box Specular
 	glUseProgram(NULL);
 }
@@ -128,12 +120,15 @@ void mouseMove(int x, int y)
 
 void redraw()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	//Redraw only runs for every 10ms
+	static auto last_time = std::chrono::system_clock::now();
+	std::this_thread::sleep_until(last_time + std::chrono::milliseconds(10));
+	last_time = std::chrono::system_clock::now();
 	
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_STENCIL_TEST);
 	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
 	drawScene();
 	glutSwapBuffers();
 }
@@ -147,13 +142,12 @@ void initializeGL()
 	//添加碰撞边缘
 	cam->setSceneOuterBoundary(-roomSizeX / 2.0, -roomSizeZ / 2.0, roomSizeX / 2.0, roomSizeZ / 2.0);
 
-	cam->setSceneInnerBoundary(-roomSizeX / 2.0,  -roomSizeY / 2.0f - 1.f, -roomSizeZ / 2.0,
-		roomSizeX / 2.0, -roomSizeY / 2.0f, roomSizeZ / 2.0);    //地板collider
+	cam->setSceneInnerBoundary(-roomSizeX / 2.0,  -roomSizeY / 2.0f - 1.f, -roomSizeZ / 2.0,	roomSizeX / 2.0, -roomSizeY / 2.0f, roomSizeZ / 2.0);    //地板collider
 
-	initBoxCollidersProperty();
-	setBoxColliderBoundary(cam);
+	//initBoxCollidersProperty();
+	//setBoxColliderBoundary(cam);
 
-	initBreadModels();
+	//initBreadModels();
 
 	setupLights();
 
