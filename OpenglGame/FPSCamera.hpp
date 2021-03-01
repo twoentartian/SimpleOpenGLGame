@@ -145,7 +145,7 @@ public:
 			isDPressed = true;
 			break;
 
-			//camera
+			//camera rotate
 		case 'J':
 		case 'j':
 			isLeftPressed = true;
@@ -200,7 +200,7 @@ public:
 			isDPressed = false;
 			break;
 
-			//camera
+			//camera rotate
 		case 'J':
 		case 'j':
 			isLeftPressed = false;

@@ -62,6 +62,10 @@ void reshape(int width, int height)
 
 void idle()
 {
+	//Redraw only runs for every 10ms
+	static auto last_time = std::chrono::system_clock::now();
+	std::this_thread::sleep_until(last_time + std::chrono::milliseconds(10));
+	last_time = std::chrono::system_clock::now();
 	glutPostRedisplay();
 }
 
@@ -69,7 +73,7 @@ void initTexture()
 {
 	glEnable(GL_DEPTH_TEST);
 	glGenTextures(10, texture);
-	loadTex(0, "Textures/17.bmp", texture);
+	loadTex(0, "Textures/14.bmp", texture);
 
 	//skybox
 	loadTex(1, "Textures/Skybox1/up.png", texture);
@@ -119,12 +123,7 @@ void mouseMove(int x, int y)
 #pragma endregion
 
 void redraw()
-{
-	//Redraw only runs for every 10ms
-	static auto last_time = std::chrono::system_clock::now();
-	std::this_thread::sleep_until(last_time + std::chrono::milliseconds(10));
-	last_time = std::chrono::system_clock::now();
-	
+{	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_STENCIL_TEST);
 	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
@@ -175,15 +174,15 @@ int main(int argc, char *argv[])
 	glutMotionFunc(mouseMove);
 	glutIdleFunc(idle);
 
-	boxShader.Use();
-	initCube(boxShader);
-	glUseProgram(NULL);
+	//boxShader.Use();
+	//initCube(boxShader);
+	//glUseProgram(NULL);
 
 	initTexture();
 	glutMainLoop();
 
 	delete cam;
-	deleteBreadModels();
+	//deleteBreadModels();
 
 	return 0;
 }
