@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <cmath>
 #include <gl/freeglut.h>
@@ -258,7 +260,7 @@ public:
 		float len = dx * dx + dy * dy + dz * dz;
 		//cout << "length " << len << endl;
 
-		if (len < dist)    //小于一定距离的时候能吃掉
+		if (len < dist)
 			return true;
 		return false;
 	}
@@ -272,7 +274,7 @@ public:
 		float len = dx * dx + dy * dy + dz * dz;
 		//cout << "length " << len << endl;
 
-		if (len < dist)    //小于一定距离的时候算作靠近
+		if (len < dist)
 			return true;
 		return false;
 	}

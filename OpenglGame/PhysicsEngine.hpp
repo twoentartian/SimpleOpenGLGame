@@ -15,7 +15,7 @@ constexpr float GravityAcc = -9.8f;
 constexpr float PlayerHeight = 7.5f;         //玩家视点到脚的高度
 constexpr float PlayerMoveSpeed = 0.15f;     //玩家移动速度
 
-constexpr float JumpInitialSpeed = 24.0f;    //起跳初速度
+constexpr float JumpInitialSpeed = 20.0f;    //起跳初速度
 constexpr float JumpFactor = 0.04f;          //跳起速度系数
 constexpr float GravityFactor = 0.04f;       //下落速度系数
 

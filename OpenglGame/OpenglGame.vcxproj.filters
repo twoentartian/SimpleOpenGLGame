@@ -32,6 +32,12 @@
     <ClInclude Include="SceneController.hpp">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="Scene.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="boss.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

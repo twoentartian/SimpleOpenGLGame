@@ -120,10 +120,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="boss.hpp" />
     <ClInclude Include="FPSCamera.hpp" />
     <ClInclude Include="Model.hpp" />
     <ClInclude Include="ParticleSystem.hpp" />
     <ClInclude Include="PhysicsEngine.hpp" />
+    <ClInclude Include="Scene.hpp" />
     <ClInclude Include="SceneController.hpp" />
     <ClInclude Include="Shader.hpp" />
   </ItemGroup>

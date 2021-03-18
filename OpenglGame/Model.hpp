@@ -43,8 +43,6 @@ public:
 
 	~Model()
 	{
-		//delete tt;
-
 		textureIdMap.clear();
 
 		if (textureIds)
@@ -86,7 +84,6 @@ public:
 	}
 
 private:
-	//加载texture
 	bool loadTextures(const aiScene* scene, const std::string modelPath)
 	{
 		ILboolean success;

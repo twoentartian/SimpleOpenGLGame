@@ -5,7 +5,10 @@
 #include <chrono>
 #include <thread>
 
+
+#include "Scene.hpp"
 #include "SceneController.hpp"
+#include "boss.hpp"
 
 constexpr float MouseSensitivity = 0.003; // mouse move sensitivity
 
@@ -25,7 +28,10 @@ void drawScene()
 	glStencilMask(0x00);
 	glCullFace(GL_FRONT);
 	glEnable(GL_CULL_FACE);
+	
 	//drawBoxColliders(boxShader, texture[7], texture[8], texture[9], cam);	//Modern GL
+	sceneBox::Container_AllDraw(boxShader, texture[7], texture[8], texture[9], cam);
+	
 	glDisable(GL_CULL_FACE);
 	glUseProgram(NULL);
 	
@@ -41,6 +47,9 @@ void drawScene()
 	glScalef(roomSizeX, roomSizeZ, 1);
 	Draw::drawRect(texture[0]);
 	glPopMatrix();
+
+	//update boss
+	drawBoss();
 
 	//箱子
 	//drawBreadModels();
@@ -73,7 +82,7 @@ void initTexture()
 {
 	glEnable(GL_DEPTH_TEST);
 	glGenTextures(10, texture);
-	loadTex(0, "Textures/14.bmp", texture);
+	loadTex(0, "Textures/17.bmp", texture);
 
 	//skybox
 	loadTex(1, "Textures/Skybox1/up.png", texture);
@@ -140,9 +149,9 @@ void initializeGL()
 	cam = new FPSCamera();
 	//添加碰撞边缘
 	cam->setSceneOuterBoundary(-roomSizeX / 2.0, -roomSizeZ / 2.0, roomSizeX / 2.0, roomSizeZ / 2.0);
-
 	cam->setSceneInnerBoundary(-roomSizeX / 2.0,  -roomSizeY / 2.0f - 1.f, -roomSizeZ / 2.0,	roomSizeX / 2.0, -roomSizeY / 2.0f, roomSizeZ / 2.0);    //地板collider
 
+	InitBoss();
 	//initBoxCollidersProperty();
 	//setBoxColliderBoundary(cam);
 
@@ -174,7 +183,9 @@ int main(int argc, char *argv[])
 	glutMotionFunc(mouseMove);
 	glutIdleFunc(idle);
 
-	//boxShader.Use();
+	boxShader.Use();
+	
+	Cube::initCube(boxShader);
 	//initCube(boxShader);
 	//glUseProgram(NULL);
 

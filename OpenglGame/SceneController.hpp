@@ -72,23 +72,20 @@ public:
 	static inline void drawRect(GLuint texture)
 	{
 		glEnable(GL_TEXTURE_2D);
-		glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);    //天空盒加环境光
+		glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 		glEnable(GL_COLOR_MATERIAL);
-
-		glBindTexture(GL_TEXTURE_2D, texture);  //选择纹理texture[status]   
+		glBindTexture(GL_TEXTURE_2D, texture);
 		const GLfloat x1 = -0.5, x2 = 0.5;
 		const GLfloat y1 = -0.5, y2 = 0.5;
 		const GLfloat point[4][2] = { { x1,y1 },{ x1,y2 },{ x2,y2 },{ x2,y1 } };
 		int dir[4][2] = { { 1,0 },{ 1,1 },{ 0,1 },{ 0,0 } };
 		glBegin(GL_QUADS);
-
 		for (int i = 0; i < 4; i++) {
 			glTexCoord2iv(dir[i]);
 			glVertex2fv(point[i]);
 		}
 		glEnd();
 		glBindTexture(GL_TEXTURE_2D, 0);
-
 		glDisable(GL_COLOR_MATERIAL);
 		glDisable(GL_TEXTURE_2D);
 	}
@@ -158,7 +155,6 @@ public:
 
 private:
 	
-	
 };
 
 
@@ -174,245 +170,246 @@ struct Vertex
 	Vertex(glm::vec3 p, glm::vec3 n, glm::vec2 t) : pos(p),norm(n),texC(t){}
 };
 
-//GLuint CubeVAO, CubeVBO, CubeEBO;
-//vector<Vertex> CubeVertices;
-//vector<unsigned int> CubeIndices =
-//{
-//	0, 1, 2, 0, 2 ,3,		//Front
-//	4, 5, 6, 4, 6, 7,		//Right
-//	8, 9, 10, 8 ,10, 11,	//Back
-//	12, 13, 14, 12, 14, 15,	//Left
-//	16, 17, 18, 16, 18, 19,	//Top
-//	20, 21, 22, 20, 22, 23	//Bottom
-//};
 
-//void drawCube(GLuint texture)
-//{
-//	glEnable(GL_TEXTURE_2D);
-//	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);    //盒子碰撞器加环境光
-//	glEnable(GL_COLOR_MATERIAL);
-//	int i, j;
-//	const GLfloat x1 = -0.5, x2 = 0.5;
-//	const GLfloat y1 = -0.5, y2 = 0.5;
-//	const GLfloat z1 = -0.5, z2 = 0.5;
-//
-//	//指定六个面的四个顶点，每个顶点用3个坐标值表示
-//	//前 后 上 下 左 右  
-//
-//	GLfloat point[6][4][3] = {
-//		{ { x1,y1,z1 },{ x1,y2,z1 },{ x2,y2,z1 },{ x2,y1,z1 } },
-//		{ { x1,y1,z2 },{ x2,y1,z2 },{ x2,y2,z2 },{ x1,y2,z2 } },
-//		{ { x1,y2,z1 },{ x1,y2,z2 },{ x2,y2,z2 },{ x2,y2,z1 } },
-//		{ { x1,y1,z1 },{ x2,y1,z1 },{ x2,y1,z2 },{ x1,y1,z2 } },
-//		{ { x2,y1,z1 },{ x2,y2,z1 },{ x2,y2,z2 },{ x2,y1,z2 } },
-//		{ { x1,y1,z1 },{ x1,y1,z2 },{ x1,y2,z2 },{ x1,y2,z1 } },
-//	};
-//
-//	int dir[6][4][2] = {
-//		{ { 0,0 },{ 0,1 },{ 1,1 },{ 1,0 } },
-//		{ { 0,0 },{ 1,0 },{ 1,1 },{ 0,1 } },
-//		{ { 0,1 },{ 0,0 },{ 1,0 },{ 1,1 } },
-//		{ { 1,1 },{ 0,1 },{ 0,0 },{ 1,0 } },
-//		{ { 1,0 },{ 1,1 },{ 0,1 },{ 0,0 } },
-//		{ { 0,0 },{ 1,0 },{ 1,1 },{ 0,1 } },
-//	};
-//
-//	for (i = 0; i < 6; i++) {
-//		glm::vec3 v1(point[i][0][0], point[i][0][1], point[i][0][2]);
-//		glm::vec3 v2(point[i][1][0], point[i][1][1], point[i][1][2]);
-//		glm::vec3 normal = glm::normalize(glm::cross(v1, v2));
-//
-//		glBindTexture(GL_TEXTURE_2D, texture);
-//		glBegin(GL_QUADS);
-//		for (j = 0; j < 4; j++) {
-//			glTexCoord2iv(dir[i][j]);
-//			glNormal3fv(glm::value_ptr(normal));
-//			glVertex3fv(point[i][j]);
-//		}
-//		glEnd();
-//	}
-//
-//	glDisable(GL_COLOR_MATERIAL);
-//	glDisable(GL_TEXTURE_2D);
-//}
+GLuint CubeVAO, CubeVBO, CubeEBO;
+vector<Vertex> CubeVertices;
+vector<unsigned int> CubeIndices =
+{
+	0, 1, 2, 0, 2 ,3,		//Front
+	4, 5, 6, 4, 6, 7,		//Right
+	8, 9, 10, 8 ,10, 11,	//Back
+	12, 13, 14, 12, 14, 15,	//Left
+	16, 17, 18, 16, 18, 19,	//Top
+	20, 21, 22, 20, 22, 23	//Bottom
+};
 
-//void initCube(Shader shader)
-//{
-//	const GLfloat x = 0.5;
-//	const GLfloat y = 0.5;
-//	const GLfloat z = 0.5;
-//
-//	//Front
-//	CubeVertices.push_back(Vertex(glm::vec3(x, y, z), glm::vec3(0, 0, 1), glm::vec2(1, 0)));
-//	CubeVertices.push_back(Vertex(glm::vec3(x, -y, z), glm::vec3(0, 0, 1), glm::vec2(1, 1)));
-//	CubeVertices.push_back(Vertex(glm::vec3(-x, -y, z), glm::vec3(0, 0, 1), glm::vec2(0, 1)));
-//	CubeVertices.push_back(Vertex(glm::vec3(-x, y, z), glm::vec3(0, 0, 1), glm::vec2(0, 0)));
-//
-//	//Right
-//	CubeVertices.push_back(Vertex(glm::vec3(x, y, z), glm::vec3(1, 0, 0), glm::vec2(0, 0)));
-//	CubeVertices.push_back(Vertex(glm::vec3(x, y, -z), glm::vec3(1, 0, 0), glm::vec2(1, 0)));
-//	CubeVertices.push_back(Vertex(glm::vec3(x, -y, -z), glm::vec3(1, 0, 0), glm::vec2(1, 1)));
-//	CubeVertices.push_back(Vertex(glm::vec3(x, -y, z), glm::vec3(1, 0, 0), glm::vec2(0, 1)));
-//
-//	//Top
-//	CubeVertices.push_back(Vertex(glm::vec3(x, y, z), glm::vec3(0, 1, 0), glm::vec2(0, 0)));
-//	CubeVertices.push_back(Vertex(glm::vec3(-x, y, z), glm::vec3(0, 1, 0), glm::vec2(0, 1)));
-//	CubeVertices.push_back(Vertex(glm::vec3(-x, y, -z), glm::vec3(0, 1, 0), glm::vec2(1, 1)));
-//	CubeVertices.push_back(Vertex(glm::vec3(x, y, -z), glm::vec3(0, 1, 0), glm::vec2(1, 0)));
-//
-//	//Back
-//	CubeVertices.push_back(Vertex(glm::vec3(-x, -y, -z), glm::vec3(0, 0, -1), glm::vec2(1, 0)));
-//	CubeVertices.push_back(Vertex(glm::vec3(x, -y, -z), glm::vec3(0, 0, -1), glm::vec2(0, 0)));
-//	CubeVertices.push_back(Vertex(glm::vec3(x, y, -z), glm::vec3(0, 0, -1), glm::vec2(0, 1)));
-//	CubeVertices.push_back(Vertex(glm::vec3(-x, y, -z), glm::vec3(0, 0, -1), glm::vec2(1, 1)));
-//
-//	//Left
-//	CubeVertices.push_back(Vertex(glm::vec3(-x, -y, -z), glm::vec3(-1, 0, 0), glm::vec2(0, 0)));
-//	CubeVertices.push_back(Vertex(glm::vec3(-x, y, -z), glm::vec3(-1, 0, 0), glm::vec2(0, 1)));
-//	CubeVertices.push_back(Vertex(glm::vec3(-x, y, z), glm::vec3(-1, 0, 0), glm::vec2(1, 1)));
-//	CubeVertices.push_back(Vertex(glm::vec3(-x, -y, z), glm::vec3(-1, 0, 0), glm::vec2(1, 0)));
-//
-//	//Bottom
-//	CubeVertices.push_back(Vertex(glm::vec3(-x, -y, -z), glm::vec3(0, -1, 0), glm::vec2(0, 0)));
-//	CubeVertices.push_back(Vertex(glm::vec3(-x, -y, z), glm::vec3(0, -1, 0), glm::vec2(1, 0)));
-//	CubeVertices.push_back(Vertex(glm::vec3(x, -y, z), glm::vec3(0, -1, 0), glm::vec2(1, 1)));
-//	CubeVertices.push_back(Vertex(glm::vec3(x, -y, -z), glm::vec3(0, -1, 0), glm::vec2(0, 1)));
-//
-//	//Tangent space stuff
-//	for (int i = 0; i < CubeIndices.size(); i += 3)
-//	{
-//		Vertex& a = CubeVertices[CubeIndices[i]];
-//		Vertex& b = CubeVertices[CubeIndices[i + 1]];
-//		Vertex& c = CubeVertices[CubeIndices[i + 2]];
-//
-//		glm::vec3 edge1 = b.pos - a.pos;
-//		glm::vec3 edge2 = c.pos - a.pos;
-//		glm::vec2 deltaUV1 = b.texC - a.texC;
-//		glm::vec2 deltaUV2 = c.texC - a.texC;
-//
-//		GLfloat f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
-//
-//		glm::vec3 tangent, bitangent;
-//
-//		tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
-//		tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
-//		tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
-//		tangent = glm::normalize(tangent);
-//
-//		bitangent.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
-//		bitangent.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
-//		bitangent.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
-//		bitangent = glm::normalize(bitangent);
-//
-//		a.tangent = tangent;
-//		b.tangent = tangent;
-//		c.tangent = tangent;
-//
-//		a.bitangent = bitangent;
-//		b.bitangent = bitangent;
-//		c.bitangent = bitangent;
-//	}
-//
-//	glGenVertexArrays(1, &CubeVAO);
-//	glGenBuffers(1, &CubeVBO);
-//	glGenBuffers(1, &CubeEBO);
-//
-//	glBindVertexArray(CubeVAO);
-//
-//	glBindBuffer(GL_ARRAY_BUFFER, CubeVBO);
-//	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * CubeVertices.size(), &CubeVertices[0], GL_STATIC_DRAW);
-//
-//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, CubeEBO);
-//	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * CubeIndices.size(), &CubeIndices[0], GL_STATIC_DRAW);
-//
-//	//Position
-//	glEnableVertexAttribArray(0);
-//	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-//
-//	//Normal
-//	glEnableVertexAttribArray(1);
-//	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, norm));
-//
-//	//Tex2D
-//	glEnableVertexAttribArray(2);
-//	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texC));
-//
-//	//Tangent
-//	glEnableVertexAttribArray(3);
-//	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
-//
-//	//Bitangent
-//	glEnableVertexAttribArray(4);
-//	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bitangent));
-//
-//	glBindVertexArray(0);
-//}
+void drawCube(GLuint texture)
+{
+	glEnable(GL_TEXTURE_2D);
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);    //盒子碰撞器加环境光
+	glEnable(GL_COLOR_MATERIAL);
+	int i, j;
+	const GLfloat x1 = -0.5, x2 = 0.5;
+	const GLfloat y1 = -0.5, y2 = 0.5;
+	const GLfloat z1 = -0.5, z2 = 0.5;
 
-//void drawCube(Shader shader, GLuint diffuse, GLuint bump, GLuint spec)	//modern gl draw, init before use.
-//{
-//	//Textures
-//	glActiveTexture(GL_TEXTURE0);	//0th texture unit
-//	glUniform1i(glGetUniformLocation(shader.Program, "diffuse_map"), 0);	//Bind "diffuse_map" in shader to 0th texture unit.
-//	glBindTexture(GL_TEXTURE_2D, diffuse);	//Bind texture to texture unit.
-//
-//	glActiveTexture(GL_TEXTURE1);
-//	glUniform1i(glGetUniformLocation(shader.Program, "bump_map"), 1);
-//	glBindTexture(GL_TEXTURE_2D, bump);
-//
-//	glActiveTexture(GL_TEXTURE2);
-//	glUniform1i(glGetUniformLocation(shader.Program, "spec_map"), 2);
-//	glBindTexture(GL_TEXTURE_2D, spec);
-//
-//	//Draw
-//	glBindVertexArray(CubeVAO);
-//	glDrawElements(GL_TRIANGLES, CubeIndices.size(), GL_UNSIGNED_INT, 0);
-//	glBindVertexArray(0);
-//
-//	//Release Textures: in reverse order!
-//	glActiveTexture(GL_TEXTURE2);
-//	glBindTexture(GL_TEXTURE_2D, 0);
-//
-//	glActiveTexture(GL_TEXTURE1);
-//	glBindTexture(GL_TEXTURE_2D, 0);
-//
-//	glActiveTexture(GL_TEXTURE0);
-//	glBindTexture(GL_TEXTURE_2D, 0);
-//	glEnable(GL_TEXTURE0);
-//}
+	//指定六个面的四个顶点，每个顶点用3个坐标值表示
+	//前 后 上 下 左 右  
+
+	GLfloat point[6][4][3] = {
+		{ { x1,y1,z1 },{ x1,y2,z1 },{ x2,y2,z1 },{ x2,y1,z1 } },
+		{ { x1,y1,z2 },{ x2,y1,z2 },{ x2,y2,z2 },{ x1,y2,z2 } },
+		{ { x1,y2,z1 },{ x1,y2,z2 },{ x2,y2,z2 },{ x2,y2,z1 } },
+		{ { x1,y1,z1 },{ x2,y1,z1 },{ x2,y1,z2 },{ x1,y1,z2 } },
+		{ { x2,y1,z1 },{ x2,y2,z1 },{ x2,y2,z2 },{ x2,y1,z2 } },
+		{ { x1,y1,z1 },{ x1,y1,z2 },{ x1,y2,z2 },{ x1,y2,z1 } },
+	};
+
+	int dir[6][4][2] = {
+		{ { 0,0 },{ 0,1 },{ 1,1 },{ 1,0 } },
+		{ { 0,0 },{ 1,0 },{ 1,1 },{ 0,1 } },
+		{ { 0,1 },{ 0,0 },{ 1,0 },{ 1,1 } },
+		{ { 1,1 },{ 0,1 },{ 0,0 },{ 1,0 } },
+		{ { 1,0 },{ 1,1 },{ 0,1 },{ 0,0 } },
+		{ { 0,0 },{ 1,0 },{ 1,1 },{ 0,1 } },
+	};
+
+	for (i = 0; i < 6; i++) {
+		glm::vec3 v1(point[i][0][0], point[i][0][1], point[i][0][2]);
+		glm::vec3 v2(point[i][1][0], point[i][1][1], point[i][1][2]);
+		glm::vec3 normal = glm::normalize(glm::cross(v1, v2));
+
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glBegin(GL_QUADS);
+		for (j = 0; j < 4; j++) {
+			glTexCoord2iv(dir[i][j]);
+			glNormal3fv(glm::value_ptr(normal));
+			glVertex3fv(point[i][j]);
+		}
+		glEnd();
+	}
+
+	glDisable(GL_COLOR_MATERIAL);
+	glDisable(GL_TEXTURE_2D);
+}
+
+void initCube(Shader shader)
+{
+	const GLfloat x = 0.5;
+	const GLfloat y = 0.5;
+	const GLfloat z = 0.5;
+
+	//Front
+	CubeVertices.push_back(Vertex(glm::vec3(x, y, z), glm::vec3(0, 0, 1), glm::vec2(1, 0)));
+	CubeVertices.push_back(Vertex(glm::vec3(x, -y, z), glm::vec3(0, 0, 1), glm::vec2(1, 1)));
+	CubeVertices.push_back(Vertex(glm::vec3(-x, -y, z), glm::vec3(0, 0, 1), glm::vec2(0, 1)));
+	CubeVertices.push_back(Vertex(glm::vec3(-x, y, z), glm::vec3(0, 0, 1), glm::vec2(0, 0)));
+
+	//Right
+	CubeVertices.push_back(Vertex(glm::vec3(x, y, z), glm::vec3(1, 0, 0), glm::vec2(0, 0)));
+	CubeVertices.push_back(Vertex(glm::vec3(x, y, -z), glm::vec3(1, 0, 0), glm::vec2(1, 0)));
+	CubeVertices.push_back(Vertex(glm::vec3(x, -y, -z), glm::vec3(1, 0, 0), glm::vec2(1, 1)));
+	CubeVertices.push_back(Vertex(glm::vec3(x, -y, z), glm::vec3(1, 0, 0), glm::vec2(0, 1)));
+
+	//Top
+	CubeVertices.push_back(Vertex(glm::vec3(x, y, z), glm::vec3(0, 1, 0), glm::vec2(0, 0)));
+	CubeVertices.push_back(Vertex(glm::vec3(-x, y, z), glm::vec3(0, 1, 0), glm::vec2(0, 1)));
+	CubeVertices.push_back(Vertex(glm::vec3(-x, y, -z), glm::vec3(0, 1, 0), glm::vec2(1, 1)));
+	CubeVertices.push_back(Vertex(glm::vec3(x, y, -z), glm::vec3(0, 1, 0), glm::vec2(1, 0)));
+
+	//Back
+	CubeVertices.push_back(Vertex(glm::vec3(-x, -y, -z), glm::vec3(0, 0, -1), glm::vec2(1, 0)));
+	CubeVertices.push_back(Vertex(glm::vec3(x, -y, -z), glm::vec3(0, 0, -1), glm::vec2(0, 0)));
+	CubeVertices.push_back(Vertex(glm::vec3(x, y, -z), glm::vec3(0, 0, -1), glm::vec2(0, 1)));
+	CubeVertices.push_back(Vertex(glm::vec3(-x, y, -z), glm::vec3(0, 0, -1), glm::vec2(1, 1)));
+
+	//Left
+	CubeVertices.push_back(Vertex(glm::vec3(-x, -y, -z), glm::vec3(-1, 0, 0), glm::vec2(0, 0)));
+	CubeVertices.push_back(Vertex(glm::vec3(-x, y, -z), glm::vec3(-1, 0, 0), glm::vec2(0, 1)));
+	CubeVertices.push_back(Vertex(glm::vec3(-x, y, z), glm::vec3(-1, 0, 0), glm::vec2(1, 1)));
+	CubeVertices.push_back(Vertex(glm::vec3(-x, -y, z), glm::vec3(-1, 0, 0), glm::vec2(1, 0)));
+
+	//Bottom
+	CubeVertices.push_back(Vertex(glm::vec3(-x, -y, -z), glm::vec3(0, -1, 0), glm::vec2(0, 0)));
+	CubeVertices.push_back(Vertex(glm::vec3(-x, -y, z), glm::vec3(0, -1, 0), glm::vec2(1, 0)));
+	CubeVertices.push_back(Vertex(glm::vec3(x, -y, z), glm::vec3(0, -1, 0), glm::vec2(1, 1)));
+	CubeVertices.push_back(Vertex(glm::vec3(x, -y, -z), glm::vec3(0, -1, 0), glm::vec2(0, 1)));
+
+	//Tangent space stuff
+	for (int i = 0; i < CubeIndices.size(); i += 3)
+	{
+		Vertex& a = CubeVertices[CubeIndices[i]];
+		Vertex& b = CubeVertices[CubeIndices[i + 1]];
+		Vertex& c = CubeVertices[CubeIndices[i + 2]];
+
+		glm::vec3 edge1 = b.pos - a.pos;
+		glm::vec3 edge2 = c.pos - a.pos;
+		glm::vec2 deltaUV1 = b.texC - a.texC;
+		glm::vec2 deltaUV2 = c.texC - a.texC;
+
+		GLfloat f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+		glm::vec3 tangent, bitangent;
+
+		tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+		tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+		tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+		tangent = glm::normalize(tangent);
+
+		bitangent.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+		bitangent.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+		bitangent.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+		bitangent = glm::normalize(bitangent);
+
+		a.tangent = tangent;
+		b.tangent = tangent;
+		c.tangent = tangent;
+
+		a.bitangent = bitangent;
+		b.bitangent = bitangent;
+		c.bitangent = bitangent;
+	}
+
+	glGenVertexArrays(1, &CubeVAO);
+	glGenBuffers(1, &CubeVBO);
+	glGenBuffers(1, &CubeEBO);
+
+	glBindVertexArray(CubeVAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, CubeVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * CubeVertices.size(), &CubeVertices[0], GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, CubeEBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * CubeIndices.size(), &CubeIndices[0], GL_STATIC_DRAW);
+
+	//Position
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+
+	//Normal
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, norm));
+
+	//Tex2D
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texC));
+
+	//Tangent
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
+
+	//Bitangent
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bitangent));
+
+	glBindVertexArray(0);
+}
+
+void drawCube(Shader shader, GLuint diffuse, GLuint bump, GLuint spec)	//modern gl draw, init before use.
+{
+	//Textures
+	glActiveTexture(GL_TEXTURE0);	//0th texture unit
+	glUniform1i(glGetUniformLocation(shader.Program, "diffuse_map"), 0);	//Bind "diffuse_map" in shader to 0th texture unit.
+	glBindTexture(GL_TEXTURE_2D, diffuse);	//Bind texture to texture unit.
+
+	glActiveTexture(GL_TEXTURE1);
+	glUniform1i(glGetUniformLocation(shader.Program, "bump_map"), 1);
+	glBindTexture(GL_TEXTURE_2D, bump);
+
+	glActiveTexture(GL_TEXTURE2);
+	glUniform1i(glGetUniformLocation(shader.Program, "spec_map"), 2);
+	glBindTexture(GL_TEXTURE_2D, spec);
+
+	//Draw
+	glBindVertexArray(CubeVAO);
+	glDrawElements(GL_TRIANGLES, CubeIndices.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+
+	//Release Textures: in reverse order!
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glEnable(GL_TEXTURE0);
+}
 
 
 
-//void initSingleBoxCollider(glm::vec3 pos, glm::vec3 scalar)    //设置单个盒子的位置和大小
-//{
-//	boxPosition.push_back(pos);
-//	boxScale.push_back(scalar);
-//	boxSum++;
-//	isBreadEatenSet.push_back(false);
-//}
-//
-//void initBoxCollidersProperty()                   //设置盒子的位置和大小
-//{
-//	//1-0
-//	initSingleBoxCollider(glm::vec3(-60.f, -1.0f * roomSizeY / 2.0f + 2.5f, 60.f),	glm::vec3(5, 5, 40));//2-1
-//	initSingleBoxCollider(glm::vec3(-70.f, -1.0f * roomSizeY / 2.0f + 7.5f, 40.f),	glm::vec3(20, 5, 5));//3-2
-//	initSingleBoxCollider(glm::vec3(-80.f, -1.0f * roomSizeY / 2.0f + 12.5f, 0.f),	glm::vec3(5, 5, 80));//4-1
-//	initSingleBoxCollider(glm::vec3(-50.f, -1.0f * roomSizeY / 2.0f + 7.5f, -40.f),glm::vec3(60, 5, 5));//5-2
-//	initSingleBoxCollider(glm::vec3(-20.f, -1.0f * roomSizeY / 2.0f + 12.5f, -20.f),glm::vec3(5, 5, 40));//5.1-3
-//	initSingleBoxCollider(glm::vec3(-30.f, -1.0f * roomSizeY / 2.0f + 17.5f, 0.f),glm::vec3(20, 5, 5));//6-4
-//	initSingleBoxCollider(glm::vec3(-40.f, -1.0f * roomSizeY / 2.0f + 22.5f, 10.f),glm::vec3(5, 5, 20));//7-3
-//	initSingleBoxCollider(glm::vec3(-10.f, -1.0f * roomSizeY / 2.0f + 17.5f, 20.f),glm::vec3(60, 5, 5));//8-4
-//	initSingleBoxCollider(glm::vec3(20.f, -1.0f * roomSizeY / 2.0f + 22.5f, -30.f),glm::vec3(5, 5, 100));//9-5
-//	initSingleBoxCollider(glm::vec3(-20.f, -1.0f * roomSizeY / 2.0f + 27.5f, -80.f),glm::vec3(80, 5, 5));//10-3
-//	initSingleBoxCollider(glm::vec3(50.f, -1.0f * roomSizeY / 2.0f + 17.5f, -80.f),glm::vec3(60, 5, 5));//11-2
-//	initSingleBoxCollider(glm::vec3(80.f, -1.0f * roomSizeY / 2.0f + 12.5f, -60.f),glm::vec3(5, 5, 40));//12-1
-//	initSingleBoxCollider(glm::vec3(60.f, -1.0f * roomSizeY / 2.0f + 7.5f, -40.f),	glm::vec3(40, 5, 5));//13-2
-//	initSingleBoxCollider(glm::vec3(40.f, -1.0f * roomSizeY / 2.0f + 12.5f, 10.f),	glm::vec3(5, 5, 100));//14-3
-//	initSingleBoxCollider(glm::vec3(20.f, -1.0f * roomSizeY / 2.0f + 17.5f, 60.f),	glm::vec3(40, 5, 5));//15-2
-//	initSingleBoxCollider(glm::vec3(-20.f, -1.0f * roomSizeY / 2.0f + 12.5f, 60.f),glm::vec3(40, 5, 5));//16-4
-//	initSingleBoxCollider(glm::vec3(0.f, -1.0f * roomSizeY / 2.0f + 22.5f, 70.f),glm::vec3(5, 5, 20));	//17-5
-//	initSingleBoxCollider(glm::vec3(40.f, -1.0f * roomSizeY / 2.0f + 27.5f, 80.f),	glm::vec3(80, 5, 5));//18-6
-//	initSingleBoxCollider(glm::vec3(80.f, -1.0f * roomSizeY / 2.0f + 32.5f, 40.f),	glm::vec3(5, 5, 80));
-//}
+void initSingleBoxCollider(glm::vec3 pos, glm::vec3 scalar)    //设置单个盒子的位置和大小
+{
+	boxPosition.push_back(pos);
+	boxScale.push_back(scalar);
+	//boxSum++;
+	//isBreadEatenSet.push_back(false);
+}
+
+void initBoxCollidersProperty()                   //设置盒子的位置和大小
+{
+	//1-0
+	initSingleBoxCollider(glm::vec3(-60.f, -1.0f * roomSizeY / 2.0f + 2.5f, 60.f),	glm::vec3(5, 5, 40));//2-1
+	initSingleBoxCollider(glm::vec3(-70.f, -1.0f * roomSizeY / 2.0f + 7.5f, 40.f),	glm::vec3(20, 5, 5));//3-2
+	initSingleBoxCollider(glm::vec3(-80.f, -1.0f * roomSizeY / 2.0f + 12.5f, 0.f),	glm::vec3(5, 5, 80));//4-1
+	initSingleBoxCollider(glm::vec3(-50.f, -1.0f * roomSizeY / 2.0f + 7.5f, -40.f),glm::vec3(60, 5, 5));//5-2
+	initSingleBoxCollider(glm::vec3(-20.f, -1.0f * roomSizeY / 2.0f + 12.5f, -20.f),glm::vec3(5, 5, 40));//5.1-3
+	initSingleBoxCollider(glm::vec3(-30.f, -1.0f * roomSizeY / 2.0f + 17.5f, 0.f),glm::vec3(20, 5, 5));//6-4
+	initSingleBoxCollider(glm::vec3(-40.f, -1.0f * roomSizeY / 2.0f + 22.5f, 10.f),glm::vec3(5, 5, 20));//7-3
+	initSingleBoxCollider(glm::vec3(-10.f, -1.0f * roomSizeY / 2.0f + 17.5f, 20.f),glm::vec3(60, 5, 5));//8-4
+	initSingleBoxCollider(glm::vec3(20.f, -1.0f * roomSizeY / 2.0f + 22.5f, -30.f),glm::vec3(5, 5, 100));//9-5
+	initSingleBoxCollider(glm::vec3(-20.f, -1.0f * roomSizeY / 2.0f + 27.5f, -80.f),glm::vec3(80, 5, 5));//10-3
+	initSingleBoxCollider(glm::vec3(50.f, -1.0f * roomSizeY / 2.0f + 17.5f, -80.f),glm::vec3(60, 5, 5));//11-2
+	initSingleBoxCollider(glm::vec3(80.f, -1.0f * roomSizeY / 2.0f + 12.5f, -60.f),glm::vec3(5, 5, 40));//12-1
+	initSingleBoxCollider(glm::vec3(60.f, -1.0f * roomSizeY / 2.0f + 7.5f, -40.f),	glm::vec3(40, 5, 5));//13-2
+	initSingleBoxCollider(glm::vec3(40.f, -1.0f * roomSizeY / 2.0f + 12.5f, 10.f),	glm::vec3(5, 5, 100));//14-3
+	initSingleBoxCollider(glm::vec3(20.f, -1.0f * roomSizeY / 2.0f + 17.5f, 60.f),	glm::vec3(40, 5, 5));//15-2
+	initSingleBoxCollider(glm::vec3(-20.f, -1.0f * roomSizeY / 2.0f + 12.5f, 60.f),glm::vec3(40, 5, 5));//16-4
+	initSingleBoxCollider(glm::vec3(0.f, -1.0f * roomSizeY / 2.0f + 22.5f, 70.f),glm::vec3(5, 5, 20));	//17-5
+	initSingleBoxCollider(glm::vec3(40.f, -1.0f * roomSizeY / 2.0f + 27.5f, 80.f),	glm::vec3(80, 5, 5));//18-6
+	initSingleBoxCollider(glm::vec3(80.f, -1.0f * roomSizeY / 2.0f + 32.5f, 40.f),	glm::vec3(5, 5, 80));
+}
 
 //void setBoxColliderBoundary(FPSCamera* cam)       //设置盒子碰撞边缘
 //{
@@ -440,30 +437,30 @@ struct Vertex
 //	}
 //}
 
-//void drawBoxColliders(Shader shader, GLuint diffuse, GLuint bump, GLuint spec, FPSCamera* cam)	//Override with modernGL method
-//{
-//	glUniform3fv(glGetUniformLocation(shader.Program, "lightPos1"),1,LightPosition);
-//	glUniform3fv(glGetUniformLocation(shader.Program, "lightPos2"),1,LightPosition2);
-//	glUniform3fv(glGetUniformLocation(shader.Program, "lightPos3"),1,LightPosition3);
-//	glUniform3fv(glGetUniformLocation(shader.Program, "lightPos4"),1,LightPosition4);
-//	glUniform3fv(glGetUniformLocation(shader.Program, "viewPos"),1,glm::value_ptr(cam->cameraPos)	);
-//
-//	float P[16];
-//	glGetFloatv(GL_PROJECTION_MATRIX, P);
-//	//Projection does not change
-//	glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"),1,GL_FALSE,P);
-//
-//	for (int i = 0; i < boxPosition.size(); i++)
-//	{
-//		glm::mat4 boxPos = glm::translate(glm::mat4(1.0), glm::vec3(boxPosition[i].x, boxPosition[i].y, boxPosition[i].z));
-//		glm::mat4 boxScl = glm::scale(glm::mat4(1.0), glm::vec3(boxScale[i].x, boxScale[i].y, boxScale[i].z));
-//
-//		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"),1,GL_FALSE,glm::value_ptr(boxPos * boxScl));
-//		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"),1,GL_FALSE,glm::value_ptr(cam->viewMatrix));
-//
-//		drawCube(shader, diffuse, bump, spec);
-//	}
-//}
+void drawBoxColliders(Shader shader, GLuint diffuse, GLuint bump, GLuint spec, FPSCamera* cam)	//Override with modernGL method
+{
+	glUniform3fv(glGetUniformLocation(shader.Program, "lightPos1"),1,LightPosition);
+	glUniform3fv(glGetUniformLocation(shader.Program, "lightPos2"),1,LightPosition2);
+	glUniform3fv(glGetUniformLocation(shader.Program, "lightPos3"),1,LightPosition3);
+	glUniform3fv(glGetUniformLocation(shader.Program, "lightPos4"),1,LightPosition4);
+	glUniform3fv(glGetUniformLocation(shader.Program, "viewPos"),1,glm::value_ptr(cam->cameraPos)	);
+
+	float P[16];
+	glGetFloatv(GL_PROJECTION_MATRIX, P);
+	//Projection does not change
+	glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"),1,GL_FALSE,P);
+
+	for (int i = 0; i < boxPosition.size(); i++)
+	{
+		glm::mat4 boxPos = glm::translate(glm::mat4(1.0), glm::vec3(boxPosition[i].x, boxPosition[i].y, boxPosition[i].z));
+		glm::mat4 boxScl = glm::scale(glm::mat4(1.0), glm::vec3(boxScale[i].x, boxScale[i].y, boxScale[i].z));
+
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"),1,GL_FALSE,glm::value_ptr(boxPos * boxScl));
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"),1,GL_FALSE,glm::value_ptr(cam->viewMatrix));
+
+		drawCube(shader, diffuse, bump, spec);
+	}
+}
 
 //void initBreadModels()        //初始化面包集
 //{
