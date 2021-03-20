@@ -70,7 +70,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>..\3rd\Simple-OpenGL-Image-Library\include;..\3rd\assimp\include;..\3rd\DevIL\include;..\3rd\glm;..\3rd\glew-2.1.0\include;..\3rd\freeglut\include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\3rd\DevIL\lib\x64\Release;D:\git\OpenglGame\3rd\Simple-OpenGL-Image-Library\lib;..\3rd\freeglut\lib\x64;..\3rd\glew-2.1.0\lib\Release\x64;..\3rd\glfw3\lib;..\3rd\assimp\lib\Release;$(LibraryPath)</LibraryPath>
+    <LibraryPath>..\3rd\DevIL\lib\x64\Release;..\3rd\Simple-OpenGL-Image-Library\lib;..\3rd\freeglut\lib\x64;..\3rd\glew-2.1.0\lib\Release\x64;..\3rd\glfw3\lib;..\3rd\assimp\lib\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
